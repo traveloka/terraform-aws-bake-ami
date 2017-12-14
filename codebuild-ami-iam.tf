@@ -343,7 +343,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
         }
         condition = {
             test = "StringLike"
-            variable = "ec2:ResourceTag/Application"
+            variable = "aws:RequestTag/Application"
             values = [
                 "*"
             ]
