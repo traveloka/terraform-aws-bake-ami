@@ -21,6 +21,7 @@ resource "aws_codebuild_project" "bake-ami" {
     }
 
     tags {
+        "Service" = "${var.service-name}"
         "ProductDomain" = "${var.product-domain}"
         "Environment" = "management"
     }

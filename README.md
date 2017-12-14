@@ -33,6 +33,7 @@ module "traveloka-aws-bake-ami" {
  - The created build project name will be ${var.service-name}-bake-ami
  - The build project environment image is `aws/codebuild/java:openjdk-8`
  - The build project will be tagged:
+    - "Service" = "${var.service-name}"
     - "ProductDomain" = "${var.product-domain}"
     - "Environment" = "management"
  - The build project will have permission to Run Instances:
