@@ -26,11 +26,16 @@ module "traveloka-aws-bake-ami" {
 
 ## Conventions
  - The created pipeline name will be ${var.service-name}-bake-ami
- - The pipeline source zip is an S3 object, located in `{var.service-s3-bucket}/${var.service-name}-bake-ami/${var.service-name}.zip`
+ - The pipeline source zip is an S3 object that should be located in `{var.service-s3-bucket}/${var.service-name}-bake-ami/${var.service-name}.zip`
  - The codepipeline IAM role name will be `CodePipelineBakeAmi-${var.service-name}`
  - The codepipeline IAM role inline policy name will be:
-    - CodePipelineBakeAmi-${var.service-name}-S3
+    - `CodePipelineBakeAmi-${var.service-name}-S3`
  - The created build project name will be ${var.service-name}-bake-ami
+ - The codebuild IAM role name will be `CodeBuildBakeAmi-${var.service-name}`
+ - The codebuild IAM role inline policy name will be:
+    - `CodeBuildBakeAmi-${var.service-name}-S3`
+    - `CodeBuildBakeAmi-${var.service-name}-cloudwatch`
+    - `CodeBuildBakeAmi-${var.service-name}-packer`
  - The build project environment image is `aws/codebuild/java:openjdk-8`
  - The build project will be tagged:
     - "Service" = "${var.service-name}"
