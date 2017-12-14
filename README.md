@@ -25,7 +25,7 @@ module "traveloka-aws-bake-ami" {
 ```
 
 ## Conventions
- - The created pipeline name will be ${var.service-name}-bake-ami
+ - The created pipeline name will be `${var.service-name}-bake-ami`
  - The pipeline source zip is an S3 object that should be located in `{var.service-s3-bucket}/${var.service-name}-bake-ami/${var.service-name}.zip`
  - The codepipeline IAM role name will be `CodePipelineBakeAmi-${var.service-name}`
  - The codepipeline IAM role inline policy name will be:
