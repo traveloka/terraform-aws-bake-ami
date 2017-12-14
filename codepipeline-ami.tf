@@ -31,7 +31,7 @@ resource "aws_codepipeline" "bake-ami" {
     name = "Build"
 
     action {
-      name            = "Packer Bake AMI"
+      name            = "Bake"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
