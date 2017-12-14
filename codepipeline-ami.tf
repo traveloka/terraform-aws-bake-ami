@@ -1,0 +1,47 @@
+resource "aws_codepipeline" "bake-ami" {
+  name     = "${local.bake-pipeline-name}"
+  role_arn = "${aws_iam_role.codepipeline-bake-ami.arn}"
+
+  artifact_store {
+    location = "${var.service-s3-bucket}"
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "S3"
+      version          = "1"
+      output_artifacts = ["Application"]
+
+      configuration {
+        S3Bucket = "${var.service-s3-bucket}"
+        S3ObjectKey = "${local.bake-pipeline-name}/${var.service-name}.zip"
+        PollForSourceChanges = "${var.poll-source-changes}"
+      }
+      run_order = 1
+    }
+  }
+
+  stage {
+    name = "Build"
+
+    action {
+      name            = "Packer Bake AMI"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["Application"]
+      version         = "1"
+    
+      configuration {
+        ProjectName = "${aws_codebuild_project.bake-ami.name}"
+      }
+      run_order = 1
+    }
+  }
+}
