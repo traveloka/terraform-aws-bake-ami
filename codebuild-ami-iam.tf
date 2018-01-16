@@ -64,10 +64,10 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:volume/*"
         ]
         condition = {
-            test = "StringEquals"
+            test = "StringLike"
             variable = "aws:RequestTag/Environment"
             values = [
-                "management"
+                "*"
             ]
         }
         condition = {
@@ -138,10 +138,10 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             ]
         }
         condition = {
-            test = "StringEquals"
+            test = "StringLike"
             variable = "aws:RequestTag/Environment"
             values = [
-                "management"
+                "*"
             ]
         }
         condition = {
@@ -155,7 +155,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             test = "StringEquals"
             variable = "aws:RequestTag/Application"
             values = [
-                "java-7"
+                "*"
             ]
         }
         condition = {
@@ -220,10 +220,10 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             ]
         }
         condition = {
-            test = "StringEquals"
+            test = "StringLike"
             variable = "ec2:ResourceTag/Environment"
             values = [
-                "management"
+                "*"
             ]
         }
         condition = {
