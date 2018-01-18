@@ -20,7 +20,7 @@ resource "aws_codepipeline" "bake-ami" {
 
       configuration {
         S3Bucket = "${var.service-s3-bucket}"
-        S3ObjectKey = "${local.bake-pipeline-name}/${var.service-name}.zip"
+        S3ObjectKey = "${local.bake-pipeline-input-key}"
         PollForSourceChanges = "${var.poll-source-changes}"
       }
       run_order = 1
