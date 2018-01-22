@@ -350,7 +350,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
         }
         condition = {
             test = "StringLike"
-            variable = "aws:RequestTag/SourceAmi"
+            variable = "aws:RequestTag/BaseAmiId"
             values = [
                 "*"
             ]
