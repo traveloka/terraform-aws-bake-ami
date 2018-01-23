@@ -21,6 +21,7 @@ module "traveloka-aws-bake-ami" {
     "0123456789012"
   ]
   buildspec = "buildspec-bake-ami.yml"
+  vpc-id = "vpc-17f7d87e"
 }
 ```
 
