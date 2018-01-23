@@ -1,6 +1,6 @@
 resource "aws_security_group" "template" {
     name = "${var.service-name}-template"
-    vpc_id = "vpc-eaf6088e"
+    vpc_id = "${var.vpc-id}"
     
     ingress {
         from_port   = 22

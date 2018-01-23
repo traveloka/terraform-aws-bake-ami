@@ -39,3 +39,7 @@ variable "poll-source-changes" {
   default = "true"
   description = "Set whether the created pipeline should poll the source for change and triggers the pipeline"
 }
+
+variable "vpc-id" {
+  description = "the id of VPC where the baking AMI instance will reside on"
+}
