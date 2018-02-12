@@ -10,9 +10,9 @@ resource "aws_codebuild_project" "bake-ami" {
     }
 
     environment {
-        compute_type = "BUILD_GENERAL1_SMALL"
-        image        = "aws/codebuild/java:openjdk-8"
-        type         = "LINUX_CONTAINER"
+        compute_type = "${var.bake-codebuild-compute-type}"
+        image        = "${var.bake-codebuild-image}"
+        type         = "${var.bake-codebuild-environment-type}"
     }
 
     source {

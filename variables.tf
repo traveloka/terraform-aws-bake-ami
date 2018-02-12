@@ -43,3 +43,18 @@ variable "poll-source-changes" {
 variable "vpc-id" {
   description = "the id of VPC where the baking AMI instance will reside on"
 }
+
+variable "bake-codebuild-compute-type" {
+  description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html"
+  default = "BUILD_GENERAL1_SMALL"
+}
+
+variable "bake-codebuild-image" {
+  description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
+  default = "aws/codebuild/java:openjdk-8"
+}
+
+variable "bake-codebuild-environment-type" {
+  description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
+  default = "LINUX_CONTAINER"
+}
