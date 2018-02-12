@@ -2,18 +2,12 @@ data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
     statement {
         effect = "Allow",
         actions = [
-            "s3:GetObject"
-        ]
-        resources = [
-            "arn:aws:s3:::${var.service-s3-bucket}/${local.bake-pipeline-name}/*/*"
-        ]
-    }
-    statement {
-        effect = "Allow",
-        actions = [
+            "s3:GetObject",
             "s3:PutObject"
         ]
-        resources = "${var.additional-s3-put-object-permissions}"
+        resources = [
+            "arn:aws:s3:::${aws_s3_bucket.bake-ami.id}/${local.bake-pipeline-name}/*/*"
+        ]
     }
 }
 data "aws_iam_policy_document" "codebuild-bake-ami-cloudwatch" {
@@ -376,24 +370,30 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
 }
 
 resource "aws_iam_role" "codebuild-bake-ami" {
-  name = "CodeBuildBakeAmi-${var.service-name}"
+  name = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}"
   assume_role_policy = "${data.aws_iam_policy_document.codebuild-assume.json}"
   force_detach_policies = true
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-packer" {
-  name = "CodeBuildBakeAmi-${var.service-name}-packer"
+  name = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer"
   role = "${aws_iam_role.codebuild-bake-ami.id}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-packer.json}"
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-cloudwatch" {
-  name = "CodeBuildBakeAmi-${var.service-name}-cloudwatch"
+  name = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch"
   role = "${aws_iam_role.codebuild-bake-ami.id}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-cloudwatch.json}"
 }
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-s3" {
-  name = "CodeBuildBakeAmi-${var.service-name}-S3"
+  name = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3"
   role = "${aws_iam_role.codebuild-bake-ami.id}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-s3.json}"
+}
+resource "aws_iam_role_policy" "codebuild-bake-ami-policy-s3-additional" {
+  name_prefix = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3-"
+  role = "${aws_iam_role.codebuild-bake-ami.id}"
+  policy = "${var.additional-codebuild-permission[count.index]}"
+  count = "${length(var.additional-codebuild-permission)}"
 }

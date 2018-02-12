@@ -8,36 +8,28 @@ This modules should be used to provision the AMI baking pipeline that can be use
 module "traveloka-aws-bake-ami" {
   source = "git@github.com:traveloka/traveloka-terraform-aws-bake-ami.git?ref=master"
   service-name = "traveloka-flight"
-  service-s3-bucket = "flight-bucket-example"
   product-domain = "flight-team"
-  additional-s3-get-object-permissions = [
-    "arn:aws:s3:::flight-bucket-example/traveloka-flight-bake-ami/traveloka-flight.zip"
-  ]
-  additional-s3-put-object-permissions = [
-    "arn:aws:s3:::flight-bucket-example/traveloka-flight-bake-ami/instance-ami-id-staging.tfvars",
-    "arn:aws:s3:::flight-bucket-example/traveloka-flight-bake-ami/instance-ami-id-production.tfvars"
-  ]
   base-ami-owners = [
     "0123456789012"
   ]
   buildspec = "buildspec-bake-ami.yml"
-  vpc-id = "vpc-17f7d87e"
+  vpc-id = "vpc-57f4d83e"
 }
 ```
 
 ## Conventions
  - The created pipeline name will be `${var.service-name}-bake-ami`
- - The pipeline source zip is an S3 object that should be located in `{var.service-s3-bucket}/${var.service-name}-bake-ami/${var.service-name}.zip`
+ - The created s3 bucket name will be `${var.service-name}-codebuild-bake-ami-${data.aws_caller_identity.current.account_id}-<random_string>`
  - The codepipeline IAM role name will be `CodePipelineBakeAmi-${var.service-name}`
  - The codepipeline IAM role inline policy name will be:
-    - `CodePipelineBakeAmi-${var.service-name}-S3`
+    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3*`
+    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-CodeBuild`
  - The created build project name will be ${var.service-name}-bake-ami
  - The codebuild IAM role name will be `CodeBuildBakeAmi-${var.service-name}`
  - The codebuild IAM role inline policy name will be:
-    - `CodeBuildBakeAmi-${var.service-name}-S3`
-    - `CodeBuildBakeAmi-${var.service-name}-cloudwatch`
-    - `CodeBuildBakeAmi-${var.service-name}-packer`
- - The build project environment image is `aws/codebuild/java:openjdk-8`
+    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3`
+    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch`
+    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer`
  - The build project will be tagged:
     - "Service" = "${var.service-name}"
     - "ProductDomain" = "${var.product-domain}"

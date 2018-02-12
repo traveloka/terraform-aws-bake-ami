@@ -3,11 +3,6 @@ variable "service-name" {
   description = "the name of the service"
 }
 
-variable "service-s3-bucket" {
-  type = "string"
-  description = "the bucket name that will be CodePipeline artifact store. CodeBuild will access this too in the 'DOWNLOAD_SOURCE' phase"
-}
-
 variable "product-domain" {
   type    = "string"
   description = "the owner of this pipeline (e.g. team). This is used mostly for adding tags to resources"
@@ -23,15 +18,9 @@ variable "buildspec" {
   description = "the buildspec for the CodeBuild project"
 }
 
-variable "additional-s3-put-object-permissions" {
+variable "additional-codebuild-permission" {
   type    = "list"
-  description = "S3 paths CodeBuild and CodePipeline will also have PutObject permission to."
-  default = []
-}
-
-variable "additional-s3-get-object-permissions" {
-  type    = "list"
-  description = "S3 paths CodeBuild and CodePipeline will also have Get and GetObjectVersion permission to."
+  description = "Additional policies (in JSON) to be given to codebuild IAM Role"
   default = []
 }
 
@@ -57,4 +46,24 @@ variable "bake-codebuild-image" {
 variable "bake-codebuild-environment-type" {
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
   default = "LINUX_CONTAINER"
+}
+
+variable "s3-previous-version-ia-transition-days" {
+  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
+  default = "30"
+}
+
+variable "s3-previous-version-glacier-transition-days" {
+  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
+  default = "60"
+}
+
+variable "s3-previous-version-expiration-days" {
+  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
+  default = "90"
+}
+
+variable "s3-abort-incomplete-multipart-upload-days" {
+  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
+  default = "7"
 }

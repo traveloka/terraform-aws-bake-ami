@@ -1,7 +1,6 @@
 data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {
-  current = true
 }
 
 data "aws_ip_ranges" "current_region_codebuild" {
@@ -40,4 +39,10 @@ data "aws_iam_policy_document" "codepipeline-assume" {
       identifiers = ["codepipeline.amazonaws.com"]
     }
   }
+}
+
+resource "random_string" "s3-bucket-suffix" {
+  length = 30
+  special = false
+  upper = false
 }

@@ -4,7 +4,7 @@ output "template-instance-sg" {
 }
 
 output "bake-ami-pipeline-input" {
-    value = "s3://${var.service-s3-bucket}/${local.bake-pipeline-input-key}"
+    value = "s3://${aws_s3_bucket.bake-ami.id}/${local.bake-pipeline-input-key}"
     description = "where to store the zip file for the ami baking pipeline"
 }
 

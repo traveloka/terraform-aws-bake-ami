@@ -3,7 +3,7 @@ resource "aws_codepipeline" "bake-ami" {
   role_arn = "${aws_iam_role.codepipeline-bake-ami.arn}"
 
   artifact_store {
-    location = "${var.service-s3-bucket}"
+    location = "${aws_s3_bucket.bake-ami.id}"
     type     = "S3"
   }
 
@@ -19,7 +19,7 @@ resource "aws_codepipeline" "bake-ami" {
       output_artifacts = ["Application"]
 
       configuration {
-        S3Bucket = "${var.service-s3-bucket}"
+        S3Bucket = "${aws_s3_bucket.bake-ami.id}"
         S3ObjectKey = "${local.bake-pipeline-input-key}"
         PollForSourceChanges = "${var.poll-source-changes}"
       }
