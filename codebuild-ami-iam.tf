@@ -6,7 +6,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
             "s3:PutObject"
         ]
         resources = [
-            "arn:aws:s3:::${aws_s3_bucket.bake-ami.id}/${local.bake-pipeline-name}/*/*"
+            "arn:aws:s3:::${aws_s3_bucket.bake-ami.id}/*"
         ]
     }
 }
