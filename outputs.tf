@@ -12,3 +12,8 @@ output "template-instance-profile" {
     value = "${aws_iam_instance_profile.template.name}"
     description = "the name of the instance profile created by this module. This should used by the baking AMI instances"
 }
+
+output "bake-buildspec" {
+  value = "${data.template_file.buildspec.rendered}"
+  description = "the bake-ami codebuild project's buildspec"
+}
