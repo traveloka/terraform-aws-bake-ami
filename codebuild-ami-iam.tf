@@ -33,11 +33,10 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
         resources = [
             # these resources might need to be more 'locked down'
             "arn:aws:ec2:${data.aws_region.current.name}::snapshot/*",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:subnet/*",
+            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:subnet/${var.subnet-id}",
             "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:key-pair/packer_*",
             "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:network-interface/*",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:placement-group/*",
-            "*"
+            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:placement-group/*"
         ]
     }
     statement {

@@ -30,7 +30,11 @@ variable "poll-source-changes" {
 }
 
 variable "vpc-id" {
-  description = "the id of VPC where the baking AMI instance will reside on"
+  description = "the id of the VPC where AMI baking instances will reside on"
+}
+
+variable "subnet-id" {
+  description = "the id of the subnet where AMI baking instances will reside on"
 }
 
 variable "bake-codebuild-compute-type" {

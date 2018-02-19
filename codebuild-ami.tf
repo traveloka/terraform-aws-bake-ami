@@ -7,6 +7,7 @@ data "template_file" "buildspec" {
     template-instance-profile = "${aws_iam_instance_profile.template.name}"
     template-instance-sg = "${aws_security_group.template.id}"
     vpc-id = "${var.vpc-id}"
+    subnet-id = "${var.subnet-id}"
   }
 }
 
