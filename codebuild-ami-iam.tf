@@ -134,7 +134,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             test = "StringLike"
             variable = "aws:RequestTag/Environment"
             values = [
-                "*"
+                "management"
             ]
         }
         condition = {
@@ -145,7 +145,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             ]
         }
         condition = {
-            test = "StringEquals"
+            test = "StringLike"
             variable = "aws:RequestTag/Application"
             values = [
                 "*"
