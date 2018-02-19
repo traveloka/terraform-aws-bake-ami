@@ -6,6 +6,7 @@ data "template_file" "buildspec" {
     ami-baking-pipeline-name = "${local.bake-pipeline-name}"
     template-instance-profile = "${aws_iam_instance_profile.template.name}"
     template-instance-sg = "${aws_security_group.template.id}"
+    base-ami-owners = "${join(",", var.base-ami-owners)}"
     vpc-id = "${var.vpc-id}"
     subnet-id = "${var.subnet-id}"
   }
