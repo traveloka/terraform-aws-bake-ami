@@ -32,11 +32,13 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
         ]
         resources = [
             # these resources might need to be more 'locked down'
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key-pair/packer_*",
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:launch-template/*",
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:network-interface/*",
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:placement-group/*",
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:security-group/${aws_security_group.template.id}",
             "arn:aws:ec2:${data.aws_region.current.name}::snapshot/*",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:subnet/${var.subnet-id}",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:key-pair/packer_*",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:network-interface/*",
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:placement-group/*"
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:subnet/${var.subnet-id}"
         ]
     }
     statement {
@@ -45,22 +47,13 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             "ec2:RunInstances"
         ]
         resources = [
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:security-group/${aws_security_group.template.id}"
-        ]
-    }
-    statement {
-        effect = "Allow",
-        actions = [
-            "ec2:RunInstances"
-        ]
-        resources = [
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:volume/*"
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:volume/*"
         ]
         condition = {
-            test = "StringLike"
+            test = "StringEquals"
             variable = "aws:RequestTag/Environment"
             values = [
-                "*"
+                "management"
             ]
         }
         condition = {
@@ -91,7 +84,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             "ec2:RunInstances"
         ]
         resources = [
-            "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:instance/*"
+            "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*"
         ]
         condition = {
             test = "StringEquals"
@@ -118,44 +111,16 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
         }
         condition = {
             test = "StringEquals"
-            variable = "aws:RequestTag/Cluster"
-            values = [
-                "${var.service-name}-app"
-            ]
-        }
-        condition = {
-            test = "StringEquals"
             variable = "aws:RequestTag/ProductDomain"
             values = [
                 "${var.product-domain}"
             ]
         }
         condition = {
-            test = "StringLike"
+            test = "StringEquals"
             variable = "aws:RequestTag/Environment"
             values = [
                 "management"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "aws:RequestTag/ServiceVersion"
-            values = [
-                "*"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "aws:RequestTag/Application"
-            values = [
-                "*"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "aws:RequestTag/Description"
-            values = [
-                "*"
             ]
         }
     }
@@ -192,20 +157,6 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             ]
         }
         condition = {
-            test = "StringLike"
-            variable = "ec2:ResourceTag/ServiceVersion"
-            values = [
-                "*"
-            ]
-        }
-        condition = {
-            test = "StringEquals"
-            variable = "ec2:ResourceTag/Cluster"
-            values = [
-                "${var.service-name}-app"
-            ]
-        }
-        condition = {
             test = "StringEquals"
             variable = "ec2:ResourceTag/ProductDomain"
             values = [
@@ -213,24 +164,10 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             ]
         }
         condition = {
-            test = "StringLike"
+            test = "StringEquals"
             variable = "ec2:ResourceTag/Environment"
             values = [
-                "*"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "ec2:ResourceTag/Application"
-            values = [
-                "*"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "ec2:ResourceTag/Description"
-            values = [
-                "*"
+                "management"
             ]
         }
     }
@@ -332,13 +269,6 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
             variable = "aws:RequestTag/ProductDomain"
             values = [
                 "${var.product-domain}"
-            ]
-        }
-        condition = {
-            test = "StringLike"
-            variable = "aws:RequestTag/Application"
-            values = [
-                "*"
             ]
         }
         condition = {
