@@ -75,7 +75,7 @@ variable "bake-codebuild-compute-type" {
 
 variable "bake-codebuild-image" {
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
-  default = "traveloka/ansible-packer-codebuild-builder:latest"
+  default = "traveloka/ansible-packer-codebuild-builder:0.1.5"
 }
 
 variable "bake-codebuild-environment-type" {
