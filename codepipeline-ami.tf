@@ -3,7 +3,7 @@ resource "aws_codepipeline" "bake-ami" {
   role_arn = "${aws_iam_role.codepipeline-bake-ami.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.bake-ami.id}"
+    location = "${aws_s3_bucket.cache.id}"
     type     = "S3"
   }
 
@@ -11,16 +11,16 @@ resource "aws_codepipeline" "bake-ami" {
     name = "Source"
 
     action {
-      name             = "Source"
+      name             = "Playbook"
       category         = "Source"
       owner            = "AWS"
       provider         = "S3"
       version          = "1"
-      output_artifacts = ["Application"]
+      output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket = "${aws_s3_bucket.bake-ami.id}"
-        S3ObjectKey = "${local.bake-pipeline-input-key}"
+        S3Bucket = "${var.pipeline-playbook-bucket}"
+        S3ObjectKey = "${var.pipeline-playbook-key}"
         PollForSourceChanges = "${var.poll-source-changes}"
       }
       run_order = 1
@@ -35,7 +35,7 @@ resource "aws_codepipeline" "bake-ami" {
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
-      input_artifacts = ["Application"]
+      input_artifacts = ["Playbook"]
       version         = "1"
     
       configuration {

@@ -20,16 +20,13 @@ module "traveloka-aws-bake-ami" {
 ## Conventions
  - The created pipeline name will be `${var.service-name}-bake-ami`
  - The created s3 bucket name will be `${var.service-name}-codebuild-bake-ami-${data.aws_caller_identity.current.account_id}-<random_string>`
- - The codepipeline IAM role name will be `CodePipelineBakeAmi-${var.service-name}`
+ - The codepipeline IAM role name will be `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}`
  - The codepipeline IAM role inline policy name will be:
-    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3*`
-    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-CodeBuild`
+    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-*`
  - The created build project name will be ${var.service-name}-bake-ami
- - The codebuild IAM role name will be `CodeBuildBakeAmi-${var.service-name}`
+ - The codebuild IAM role name will be `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}`
  - The codebuild IAM role inline policy name will be:
-    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3`
-    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch`
-    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer`
+    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-*`
  - The build project will be tagged:
     - "Service" = "${var.service-name}"
     - "ProductDomain" = "${var.product-domain}"
@@ -38,23 +35,17 @@ module "traveloka-aws-bake-ami" {
     - having these tags on creation:
       - "Name" = "Packer Builder"
       - "Service" = "${var.service-name}"
-      - "ServiceVersion" = any
-      - "Cluster" = "${var.service-name}-app"
       - "ProductDomain" = "${var.product-domain}"
       - "Environment" = "management"
-      - "Application" = any
-      - "Description" = any
     - with a volume having these tags on creation:
       - "ProductDomain" = "${var.product-domain}"
       - "Environment" = "management"
-    - creates images and snapshots having these tags:
+  - The build project will have permission to creates images and snapshots having these tags:
       - "Service" = "${var.service-name}"
       - "ServiceVersion" = any
       - "ProductDomain" = "${var.product-domain}"
       - "Application" = any
       - "SourceAmi" = any
-
-
 
 ## Authors
 

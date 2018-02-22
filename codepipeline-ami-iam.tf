@@ -2,21 +2,25 @@ data "aws_iam_policy_document" "codepipeline-bake-ami-s3" {
   statement {
     effect = "Allow",
     actions = [
-        "s3:GetBucketVersioning"
+      "s3:PutObject"
     ]
     resources = [
-        "arn:aws:s3:::${aws_s3_bucket.bake-ami.id}"
+      "arn:aws:s3:::${aws_s3_bucket.cache.id}/*"
     ]
   }
   statement {
     effect = "Allow",
     actions = [
-      "s3:PutObject",
+      "s3:GetBucket",
+      "s3:GetBucketVersioning",
       "s3:GetObject",
       "s3:GetObjectVersion"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.bake-ami.id}/*"
+      "arn:aws:s3:::${var.pipeline-playbook-bucket}",
+      "arn:aws:s3:::${var.pipeline-binary-bucket}",
+      "arn:aws:s3:::${var.pipeline-playbook-bucket}/${var.pipeline-playbook-key}",
+      "arn:aws:s3:::${var.pipeline-binary-bucket}/${var.pipeline-binary-key}"
     ]
   }
 }

@@ -26,11 +26,18 @@ resource "aws_security_group" "template" {
 }
 
 resource "aws_iam_instance_profile" "template" {
-  name = "profile-${var.service-name}-template"
+  name = "profile-${var.service-name}-template-${data.aws_region.current.name}"
   role = "${aws_iam_role.template.name}"
 }
 
 resource "aws_iam_role" "template" {
-  name = "profile-${var.service-name}-template"
+  name = "profile-${var.service-name}-template-${data.aws_region.current.name}"
   assume_role_policy = "${data.aws_iam_policy_document.ec2-assume.json}"
+}
+
+resource "aws_iam_role_policy" "template-instance-additional" {
+  name_prefix = "TemplateInstance-${data.aws_region.current.name}-${var.service-name}-"
+  role = "${aws_iam_role.template.id}"
+  policy = "${var.additional-template-instance-permission[count.index]}"
+  count = "${length(var.additional-template-instance-permission)}"
 }

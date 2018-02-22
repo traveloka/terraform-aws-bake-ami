@@ -2,13 +2,14 @@ data "template_file" "buildspec" {
   template = "${var.buildspec}"
 
   vars {
-    ami-baking-s3-bucket  = "${aws_s3_bucket.bake-ami.id}"
+    ami-manifest-bucket = "${var.ami-manifest-bucket}"
     ami-baking-pipeline-name = "${local.bake-pipeline-name}"
     template-instance-profile = "${aws_iam_instance_profile.template.name}"
     template-instance-sg = "${aws_security_group.template.id}"
     base-ami-owners = "${join(",", var.base-ami-owners)}"
-    vpc-id = "${var.vpc-id}"
     subnet-id = "${var.subnet-id}"
+    vpc-id = "${var.vpc-id}"
+    region = "${data.aws_region.current.name}"
   }
 }
 

@@ -20,13 +20,44 @@ variable "buildspec" {
 
 variable "additional-codebuild-permission" {
   type    = "list"
-  description = "Additional policies (in JSON) to be given to codebuild IAM Role"
+  description = "Additional policies (in JSON) to be given to the codebuild IAM Role"
+  default = []
+}
+
+variable "additional-template-instance-permission" {
+  type    = "list"
+  description = "Additional policies (in JSON) to be given to the template instance's IAM Role"
   default = []
 }
 
 variable "poll-source-changes" {
   default = "true"
   description = "Set whether the created pipeline should poll the source for change and triggers the pipeline"
+}
+
+variable "pipeline-playbook-bucket" {
+  type = "string"
+  description = "the S3 bucket that contains the AMI baking playbook"
+}
+
+variable "pipeline-binary-bucket" {
+  type = "string"
+  description = "the S3 bucket that contains the application binary"
+}
+
+variable "ami-manifest-bucket" {
+  type = "string"
+  description = "the S3 bucket to which CodeBuild will store the resulting AMI's artifacts"
+}
+
+variable "pipeline-playbook-key" {
+  default = "playbook.zip"
+  description = "the S3 key of the AMI baking playbook that will be used as the pipeline input. CodeBuild doesn't seem to support tar files"
+}
+
+variable "pipeline-binary-key" {
+  default = "application.tgz"
+  description = "the S3 key of the Application binary that will be used as the pipeline input"
 }
 
 variable "vpc-id" {
@@ -52,19 +83,9 @@ variable "bake-codebuild-environment-type" {
   default = "LINUX_CONTAINER"
 }
 
-variable "s3-previous-version-ia-transition-days" {
+variable "s3-expiration-days" {
   description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
   default = "30"
-}
-
-variable "s3-previous-version-glacier-transition-days" {
-  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
-  default = "60"
-}
-
-variable "s3-previous-version-expiration-days" {
-  description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
-  default = "90"
 }
 
 variable "s3-abort-incomplete-multipart-upload-days" {
