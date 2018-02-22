@@ -75,7 +75,7 @@ variable "bake-codebuild-compute-type" {
 
 variable "bake-codebuild-image" {
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
-  default = "aws/codebuild/java:openjdk-8"
+  default = "traveloka/ansible-packer-codebuild-builder:latest"
 }
 
 variable "bake-codebuild-environment-type" {
@@ -85,7 +85,7 @@ variable "bake-codebuild-environment-type" {
 
 variable "s3-expiration-days" {
   description = "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html"
-  default = "30"
+  default = "14"
 }
 
 variable "s3-abort-incomplete-multipart-upload-days" {
