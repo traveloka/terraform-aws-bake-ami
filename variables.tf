@@ -14,7 +14,36 @@ variable "base-ami-owners" {
 }
 
 variable "buildspec" {
-  type    = "string"
+  default    = <<EOF
+version: 0.2
+env:
+  variables:
+    USER: "ubuntu"
+    PACKER_NO_COLOR: "true"
+    APP_TEMPLATE_SG_ID: "$${template-instance-sg}"
+    APP_S3_PREFIX: "s3://$${ami-manifest-bucket}/$${ami-baking-pipeline-name}"
+    APP_TEMPLATE_INSTANCE_PROFILE: "$${template-instance-profile}"
+    APP_TEMPLATE_INSTANCE_VPC_ID: "$${vpc-id}"
+    APP_TEMPLATE_INSTANCE_SUBNET_ID: "$${subnet-id}"
+    STACK_AMI_OWNERS: "$${base-ami-owners}"
+    STACK_AMI_NAME_FILTER: "tvlk/ubuntu/tsi/java/hvm/x86_64/*"
+    PACKER_VARIABLES_FILE: "packer_variables.json"
+phases:
+  pre_build:
+    commands:
+      - ansible-galaxy install -r requirements.yml
+      - packer validate -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+  build:
+    commands:
+      - packer build -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+  post_build:
+    commands:
+      - jq ".builds[0].artifact_id" packer-manifest.json | grep -oE "ami-[a-f0-9]+" > instance-ami-id.tfvars
+      - aws s3 cp . s3://$${ami-manifest-bucket}/$(cat instance-ami-id.tfvars)/ --recursive
+cache:
+  paths:
+    - /root/.ansible/roles/**/*
+EOF
   description = "the buildspec for the CodeBuild project"
 }
 
@@ -75,7 +104,7 @@ variable "bake-codebuild-compute-type" {
 
 variable "bake-codebuild-image" {
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
-  default = "traveloka/ansible-packer-codebuild-builder:0.1.5"
+  default = "traveloka/ansible-packer-codebuild-builder:0.1.6"
 }
 
 variable "bake-codebuild-environment-type" {
