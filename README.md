@@ -9,6 +9,9 @@ module "traveloka-aws-bake-ami" {
   source = "git@github.com:traveloka/traveloka-terraform-aws-bake-ami.git?ref=master"
   service-name = "traveloka-flight"
   product-domain = "flight-team"
+  pipeline-playbook-bucket = "${aws_s3_bucket.appbin.id}"
+  pipeline-binary-bucket = "${aws_s3_bucket.appbin.id}"
+  ami-manifest-bucket = "${aws_s3_bucket.ami-manifest.id}"
   base-ami-owners = [
     "0123456789012"
   ]
@@ -19,14 +22,9 @@ module "traveloka-aws-bake-ami" {
 
 ## Conventions
  - The created pipeline name will be `${var.service-name}-bake-ami`
- - The created s3 bucket name will be `${var.service-name}-codebuild-bake-ami-${data.aws_caller_identity.current.account_id}-<random_string>`
  - The codepipeline IAM role name will be `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}`
- - The codepipeline IAM role inline policy name will be:
-    - `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-*`
- - The created build project name will be ${var.service-name}-bake-ami
+ - The created build project name will be `${var.service-name}-bake-ami`
  - The codebuild IAM role name will be `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}`
- - The codebuild IAM role inline policy name will be:
-    - `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-*`
  - The build project will be tagged:
     - "Service" = "${var.service-name}"
     - "ProductDomain" = "${var.product-domain}"
@@ -44,8 +42,7 @@ module "traveloka-aws-bake-ami" {
       - "Service" = "${var.service-name}"
       - "ServiceVersion" = any
       - "ProductDomain" = "${var.product-domain}"
-      - "Application" = any
-      - "SourceAmi" = any
+      - "BaseAmiId" = any
 
 ## Authors
 
