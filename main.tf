@@ -41,5 +41,5 @@ data "aws_iam_policy_document" "codepipeline-assume" {
 }
 
 resource "random_id" "s3-bucket-suffix" {
-  length = 8
+  byte_length = 8
 }
