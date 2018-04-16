@@ -66,7 +66,7 @@ resource "aws_codebuild_project" "bake-ami" {
 
   cache {
     type     = "S3"
-    location = "${aws_s3_bucket.cache.id}"
+    location = "${aws_s3_bucket.cache.bucket}/${local.bake-pipeline-name}"
   }
 
   tags {
