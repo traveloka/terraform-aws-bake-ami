@@ -41,6 +41,18 @@ variable "pipeline-binary-key" {
   description = "the S3 key of the Application binary that will be used as the pipeline input"
 }
 
+variable "codepipeline_role_arn" {
+  description = "the role arn for codepipeline"
+}
+
+variable "codebuild_role_arn" {
+  description = "the role arn for codebuild"
+}
+
+variable "template_instance_profile_name" {
+  description = "the instance profile to be used by the template instance"
+}
+
 variable "vpc-id" {
   description = "the id of the VPC where AMI baking instances will reside on"
 }
