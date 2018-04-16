@@ -64,11 +64,6 @@ resource "aws_codebuild_project" "bake-ami" {
     buildspec = "${data.template_file.buildspec.rendered}"
   }
 
-  cache {
-    type     = "S3"
-    location = "${aws_s3_bucket.cache.bucket}/${local.bake-pipeline-name}"
-  }
-
   tags {
     "Service"       = "${var.service-name}"
     "ProductDomain" = "${var.product-domain}"
