@@ -141,9 +141,9 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:InstanceProfile"
 
       values = [
-        "${aws_iam_instance_profile.template.name}",
-        "${aws_iam_instance_profile.template.arn}",
-        "${aws_iam_instance_profile.template.unique_id}",
+        "${module.template.instance_profile_name}",
+        "${module.template.instance_profile_arn}",
+        "${module.template.instance_profile_unique_id}",
       ]
     }
 
@@ -201,9 +201,9 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:InstanceProfile"
 
       values = [
-        "${aws_iam_instance_profile.template.name}",
-        "${aws_iam_instance_profile.template.arn}",
-        "${aws_iam_instance_profile.template.unique_id}",
+        "${module.template.instance_profile_name}",
+        "${module.template.instance_profile_arn}",
+        "${module.template.instance_profile_unique_id}",
       ]
     }
 
@@ -252,7 +252,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
     ]
 
     resources = [
-      "${aws_iam_role.template.arn}",
+      "${module.template.role_arn}",
     ]
   }
 

@@ -6,6 +6,6 @@ locals {
 module "bucket_name" {
   source = "git@github.com:traveloka/terraform-aws-resource-naming.git?ref=v0.6.0"
 
-  name_prefix   = "${format("%s-%s-%s", var.service-name,"codebuild-cache", data.aws_caller_identity.current.account_id)}"
+  name_prefix   = "${format("%s-%s", var.service-name,"codebuild-cache-ap-southeast-1")}"
   resource_type = "s3_bucket"
 }

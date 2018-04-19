@@ -1,9 +1,16 @@
 data "aws_vpc" "selected" {
-  id = "${var.vpc_id}"
+  id = "${var.vpc-id}"
+}
+
+module "sg_name" {
+  source = "git@github.com:traveloka/terraform-aws-resource-naming.git?ref=v0.6.0"
+
+  name_prefix   = "${var.service-name}-template"
+  resource_type = "security_group"
 }
 
 resource "aws_security_group" "template" {
-  name   = "${var.service-name}-template"
+  name   = "${module.sg_name.name}"
   vpc_id = "${var.vpc-id}"
 
   tags {
@@ -49,7 +56,7 @@ resource "aws_security_group_rule" "template-all-vpc" {
   to_port           = "0"
   protocol          = "-1"
   security_group_id = "${aws_security_group.template.id}"
-  cidr_blocks       = ["${data.aws_vpc.selected.cidr_blocks}"]
+  cidr_blocks       = ["${data.aws_vpc.selected.cidr_block}"]
 }
 
 module "template" {
@@ -61,7 +68,7 @@ module "template" {
 
 resource "aws_iam_role_policy" "template-instance-additional" {
   name   = "TemplateInstance-${data.aws_region.current.name}-${var.service-name}-${count.index}"
-  role   = "${module.template.role_id}"
+  role   = "${module.template.role_name}"
   policy = "${var.additional-template-instance-permission[count.index]}"
   count  = "${length(var.additional-template-instance-permission)}"
 }
