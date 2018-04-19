@@ -14,9 +14,11 @@ resource "aws_s3_bucket" "cache" {
   }
 
   tags {
+    Name          = "${local.s3-bucket-name}"
     Service       = "${var.service-name}"
     ProductDomain = "${var.product-domain}"
     Description   = "${var.service-name} ami baking S3 bucket"
-    Environment   = "management"
+    Environment   = "special"
+    ManagedBy     = "Terraform"
   }
 }
