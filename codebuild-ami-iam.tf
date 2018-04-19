@@ -404,33 +404,38 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
   }
 }
 
-resource "aws_iam_role" "codebuild-bake-ami" {
-  name                  = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}"
-  assume_role_policy    = "${data.aws_iam_policy_document.codebuild-assume.json}"
-  force_detach_policies = true
+module "codebuild-bake-ami" {
+  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.0"
+
+  role_identifier            = "CodeBuildBakeAmi"
+  role_description           = "Service Role for CodeBuildBakeAmi"
+  role_force_detach_policies = true
+  role_max_session_duration  = 43200
+
+  aws_service = "codebuild.amazonaws.com"
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-packer" {
   name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer"
-  role   = "${aws_iam_role.codebuild-bake-ami.id}"
+  role   = "${module.codebuild-bake-ami.role_name}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-packer.json}"
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-cloudwatch" {
   name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch"
-  role   = "${aws_iam_role.codebuild-bake-ami.id}"
+  role   = "${module.codebuild-bake-ami.role_name}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-cloudwatch.json}"
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-s3" {
   name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3"
-  role   = "${aws_iam_role.codebuild-bake-ami.id}"
+  role   = "${module.codebuild-bake-ami.role_name}"
   policy = "${data.aws_iam_policy_document.codebuild-bake-ami-s3.json}"
 }
 
 resource "aws_iam_role_policy" "codebuild-bake-ami-policy-additional" {
-  name_prefix = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-"
-  role        = "${aws_iam_role.codebuild-bake-ami.id}"
-  policy      = "${var.additional-codebuild-permission[count.index]}"
-  count       = "${length(var.additional-codebuild-permission)}"
+  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-${count.index}"
+  role   = "${module.codebuild-bake-ami.role_name}"
+  policy = "${var.additional-codebuild-permission[count.index]}"
+  count  = "${length(var.additional-codebuild-permission)}"
 }

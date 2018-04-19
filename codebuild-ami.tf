@@ -4,7 +4,7 @@ data "template_file" "buildspec" {
   vars {
     ami-manifest-bucket       = "${var.ami-manifest-bucket}"
     ami-baking-pipeline-name  = "${local.bake-pipeline-name}"
-    template-instance-profile = "${aws_iam_instance_profile.template.name}"
+    template-instance-profile = "${module.template.instance_profile_name}"
     template-instance-sg      = "${aws_security_group.template.id}"
     base-ami-owners           = "${join(",", var.base-ami-owners)}"
     subnet-id                 = "${var.subnet-id}"
@@ -16,7 +16,7 @@ data "template_file" "buildspec" {
 resource "aws_codebuild_project" "bake-ami" {
   name         = "${local.bake-pipeline-name}"
   description  = "Bake ${var.service-name} AMI"
-  service_role = "${aws_iam_role.codebuild-bake-ami.arn}"
+  service_role = "${module.codebuild-bake-ami.role_arn}"
 
   artifacts {
     type           = "CODEPIPELINE"
@@ -36,8 +36,11 @@ resource "aws_codebuild_project" "bake-ami" {
   }
 
   tags {
+    "Name"          = "${local.bake-pipeline-name}"
+    "Description"   = "Bake ${var.service-name} AMI"
     "Service"       = "${var.service-name}"
     "ProductDomain" = "${var.product-domain}"
-    "Environment"   = "management"
+    "Environment"   = "special"
+    "ManagedBy"     = "Terraform"
   }
 }
