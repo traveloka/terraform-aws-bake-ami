@@ -19,10 +19,11 @@ resource "aws_codepipeline" "bake-ami" {
       output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket = "${var.pipeline-playbook-bucket}"
-        S3ObjectKey = "${var.pipeline-playbook-key}"
+        S3Bucket             = "${var.pipeline-playbook-bucket}"
+        S3ObjectKey          = "${var.pipeline-playbook-key}"
         PollForSourceChanges = "${var.poll-source-changes}"
       }
+
       run_order = 1
     }
   }
@@ -37,10 +38,11 @@ resource "aws_codepipeline" "bake-ami" {
       provider        = "CodeBuild"
       input_artifacts = ["Playbook"]
       version         = "1"
-    
+
       configuration {
         ProjectName = "${aws_codebuild_project.bake-ami.name}"
       }
+
       run_order = 1
     }
   }
