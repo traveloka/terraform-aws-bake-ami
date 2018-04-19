@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/Environment"
 
       values = [
-        "management",
+        "special",
       ]
     }
 
@@ -179,7 +179,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/Environment"
 
       values = [
-        "management",
+        "special",
       ]
     }
   }
@@ -239,7 +239,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:ResourceTag/Environment"
 
       values = [
-        "management",
+        "special",
       ]
     }
   }
