@@ -407,8 +407,8 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
 module "codebuild-bake-ami" {
   source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.0"
 
-  role_identifier            = "CodeBuildBakeAmi"
-  role_description           = "Service Role for CodeBuildBakeAmi"
+  role_identifier            = "CodeBuild Bake AMI"
+  role_description           = "Service Role for CodeBuild Bake AMI"
   role_force_detach_policies = true
   role_max_session_duration  = 43200
 

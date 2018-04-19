@@ -46,8 +46,8 @@ data "aws_iam_policy_document" "codepipeline-bake-ami-codebuild" {
 module "codepipeline-bake-ami" {
   source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.0"
 
-  role_identifier            = "CodePipelineBakeAmi"
-  role_description           = "Service Role for CodePipelineBakeAmi"
+  role_identifier            = "CodePipeline Bake AMI"
+  role_description           = "Service Role for CodePipeline Bake AMI"
   role_force_detach_policies = true
   role_max_session_duration  = 43200
 
