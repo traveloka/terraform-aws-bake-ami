@@ -1,6 +1,6 @@
 resource "aws_codepipeline" "bake-ami" {
   name     = "${local.bake-pipeline-name}"
-  role_arn = "${aws_iam_role.codepipeline-bake-ami.arn}"
+  role_arn = "${module.codepipeline-bake-ami.role_arn}"
 
   artifact_store {
     location = "${aws_s3_bucket.cache.id}"
