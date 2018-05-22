@@ -1,3 +1,27 @@
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
+data "aws_ip_ranges" "current_region_codebuild" {
+  regions  = ["${data.aws_region.current.name}"]
+  services = ["codebuild"]
+}
+
+data "template_file" "buildspec" {
+  template = "${var.buildspec}"
+
+  vars {
+    ami-manifest-bucket       = "${var.ami-manifest-bucket}"
+    ami-baking-pipeline-name  = "${local.bake-pipeline-name}"
+    template-instance-profile = "${module.template.instance_profile_name}"
+    template-instance-sg      = "${aws_security_group.template.id}"
+    base-ami-owners           = "${join(",", var.base-ami-owners)}"
+    subnet-id                 = "${var.subnet-id}"
+    vpc-id                    = "${var.vpc-id}"
+    region                    = "${data.aws_region.current.name}"
+  }
+}
+
 data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
   statement {
     effect = "Allow"
@@ -404,38 +428,47 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
   }
 }
 
-module "codebuild-bake-ami" {
-  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.0"
+data "aws_iam_policy_document" "codepipeline-bake-ami-s3" {
+  statement {
+    effect = "Allow"
 
-  role_identifier            = "CodeBuild Bake AMI"
-  role_description           = "Service Role for CodeBuild Bake AMI"
-  role_force_detach_policies = true
-  role_max_session_duration  = 43200
+    actions = [
+      "s3:PutObject",
+    ]
 
-  aws_service = "codebuild.amazonaws.com"
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.cache.id}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucket",
+      "s3:GetBucketVersioning",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.pipeline-playbook-bucket}",
+      "arn:aws:s3:::${var.pipeline-binary-bucket}",
+      "arn:aws:s3:::${var.pipeline-playbook-bucket}/${var.pipeline-playbook-key}",
+      "arn:aws:s3:::${var.pipeline-binary-bucket}/${var.pipeline-binary-key}",
+    ]
+  }
 }
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-packer" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-packer.json}"
-}
+data "aws_iam_policy_document" "codepipeline-bake-ami-codebuild" {
+  statement {
+    effect = "Allow"
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-cloudwatch" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-cloudwatch.json}"
-}
+    actions = [
+      "codebuild:BatchGetBuilds",
+      "codebuild:StartBuild",
+    ]
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-s3" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-s3.json}"
-}
-
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-additional" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-${count.index}"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${var.additional-codebuild-permission[count.index]}"
-  count  = "${length(var.additional-codebuild-permission)}"
+    resources = ["arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:project/${aws_codebuild_project.bake-ami.name}"]
+  }
 }
