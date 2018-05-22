@@ -28,16 +28,16 @@ module "traveloka-aws-bake-ami" {
  - The build project will be tagged:
     - "Service" = "${var.service-name}"
     - "ProductDomain" = "${var.product-domain}"
-    - "Environment" = "management"
+    - "Environment" = "special"
  - The build project will have permission to Run Instances:
     - having these tags on creation:
       - "Name" = "Packer Builder"
       - "Service" = "${var.service-name}"
       - "ProductDomain" = "${var.product-domain}"
-      - "Environment" = "management"
+      - "Environment" = "special"
     - with a volume having these tags on creation:
       - "ProductDomain" = "${var.product-domain}"
-      - "Environment" = "management"
+      - "Environment" = "special"
   - The build project will have permission to creates images and snapshots having these tags:
       - "Service" = "${var.service-name}"
       - "ServiceVersion" = any
