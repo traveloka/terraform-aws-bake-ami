@@ -1,7 +1,7 @@
-resource "aws_codebuild_project" "bake-ami" {
-  name         = "${local.bake-pipeline-name}"
-  description  = "Bake ${var.service-name} AMI"
-  service_role = "${module.codebuild-bake-ami.role_arn}"
+resource "aws_codebuild_project" "bake_ami" {
+  name         = "${local.bake_pipeline_name}"
+  description  = "Bake ${var.service_name} AMI"
+  service_role = "${module.codebuild_role.role_arn}"
 
   artifacts {
     type           = "CODEPIPELINE"
@@ -10,9 +10,9 @@ resource "aws_codebuild_project" "bake-ami" {
   }
 
   environment {
-    compute_type = "${var.bake-codebuild-compute-type}"
-    image        = "${var.bake-codebuild-image}"
-    type         = "${var.bake-codebuild-environment-type}"
+    compute_type = "${var.bake_codebuild_compute_type}"
+    image        = "${var.bake_codebuild_image}"
+    type         = "${var.bake_codebuild_environment_type}"
   }
 
   source {
@@ -20,27 +20,22 @@ resource "aws_codebuild_project" "bake-ami" {
     buildspec = "${data.template_file.buildspec.rendered}"
   }
 
-  # cache {
-  #   type     = "S3"
-  #   location = "${aws_s3_bucket.cache.bucket}/${local.bake-pipeline-name}"
-  # }
-
   tags {
-    "Name"          = "${local.bake-pipeline-name}"
-    "Description"   = "Bake ${var.service-name} AMI"
-    "Service"       = "${var.service-name}"
-    "ProductDomain" = "${var.product-domain}"
+    "Name"          = "${local.bake_pipeline_name}"
+    "Description"   = "Bake ${var.service_name} AMI"
+    "Service"       = "${var.service_name}"
+    "ProductDomain" = "${var.product_domain}"
     "Environment"   = "special"
     "ManagedBy"     = "Terraform"
   }
 }
 
-resource "aws_codepipeline" "bake-ami" {
-  name     = "${local.bake-pipeline-name}"
-  role_arn = "${module.codepipeline-bake-ami.role_arn}"
+resource "aws_codepipeline" "bake_ami" {
+  name     = "${local.bake_pipeline_name}"
+  role_arn = "${module.codepipeline_role.role_arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.cache.id}"
+    location = "${var.pipeline_artifact_bucket}"
     type     = "S3"
   }
 
@@ -56,9 +51,9 @@ resource "aws_codepipeline" "bake-ami" {
       output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket             = "${var.pipeline-playbook-bucket}"
-        S3ObjectKey          = "${var.pipeline-playbook-key}"
-        PollForSourceChanges = "${var.poll-source-changes}"
+        S3Bucket             = "${var.pipeline_playbook_bucket}"
+        S3ObjectKey          = "${var.pipeline_playbook_key}"
+        PollForSourceChanges = "${var.poll_source_changes}"
       }
 
       run_order = 1
@@ -77,7 +72,7 @@ resource "aws_codepipeline" "bake-ami" {
       version         = "1"
 
       configuration {
-        ProjectName = "${aws_codebuild_project.bake-ami.name}"
+        ProjectName = "${aws_codebuild_project.bake_ami.name}"
       }
 
       run_order = 1
@@ -85,8 +80,8 @@ resource "aws_codepipeline" "bake-ami" {
   }
 }
 
-module "codebuild-bake-ami" {
-  source = "github.com/salvianreynaldi/terraform-aws-iam-role.git//modules/service?ref=fix%2Fremove-region-prompt"
+module "codebuild_role" {
+  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.3"
 
   role_identifier            = "CodeBuild Bake AMI"
   role_description           = "Service Role for CodeBuild Bake AMI"
@@ -96,33 +91,33 @@ module "codebuild-bake-ami" {
   aws_service = "codebuild.amazonaws.com"
 }
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-packer" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-packer"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-packer.json}"
+resource "aws_iam_role_policy" "codebuild-policy-packer" {
+  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-packer"
+  role   = "${module.codebuild_role.role_name}"
+  policy = "${data.aws_iam_policy_document.codebuild_packer.json}"
 }
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-cloudwatch" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-cloudwatch"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-cloudwatch.json}"
+resource "aws_iam_role_policy" "codebuild_policy_cloudwatch" {
+  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-cloudwatch"
+  role   = "${module.codebuild_role.role_name}"
+  policy = "${data.aws_iam_policy_document.codebuild_cloudwatch.json}"
 }
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-s3" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild-bake-ami-s3.json}"
+resource "aws_iam_role_policy" "codebuild_policy_s3" {
+  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-S3"
+  role   = "${module.codebuild_role.role_name}"
+  policy = "${data.aws_iam_policy_document.codebuild_s3.json}"
 }
 
-resource "aws_iam_role_policy" "codebuild-bake-ami-policy-additional" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}-${count.index}"
-  role   = "${module.codebuild-bake-ami.role_name}"
-  policy = "${var.additional-codebuild-permission[count.index]}"
-  count  = "${length(var.additional-codebuild-permission)}"
+resource "aws_iam_role_policy" "codebuild_policy_additional" {
+  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-${count.index}"
+  role   = "${module.codebuild_role.role_name}"
+  policy = "${var.additional_codebuild_permission[count.index]}"
+  count  = "${length(var.additional_codebuild_permission)}"
 }
 
-module "codepipeline-bake-ami" {
-  source = "github.com/salvianreynaldi/terraform-aws-iam-role.git//modules/service?ref=fix%2Fremove-region-prompt"
+module "codepipeline_role" {
+  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.3"
 
   role_identifier            = "CodePipeline Bake AMI"
   role_description           = "Service Role for CodePipeline Bake AMI"
@@ -132,78 +127,44 @@ module "codepipeline-bake-ami" {
   aws_service = "codepipeline.amazonaws.com"
 }
 
-resource "aws_iam_role_policy" "codepipeline-bake-ami-s3" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-S3"
-  role   = "${module.codepipeline-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline-bake-ami-s3.json}"
+resource "aws_iam_role_policy" "codepipeline_s3" {
+  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-S3"
+  role   = "${module.codepipeline_role.role_name}"
+  policy = "${data.aws_iam_policy_document.codepipeline_s3.json}"
 }
 
-resource "aws_iam_role_policy" "codepipeline-bake-ami-codebuild" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}-CodeBuild"
-  role   = "${module.codepipeline-bake-ami.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline-bake-ami-codebuild.json}"
-}
-
-module "cache_bucket_name" {
-  source = "github.com/traveloka/terraform-aws-resource-naming?ref=v0.7.0"
-
-  name_prefix   = "${var.service-name}-codebuild-cache-"
-  resource_type = "s3_bucket"
-  keepers       = {}
-}
-
-resource "aws_s3_bucket" "cache" {
-  bucket        = "${module.cache_bucket_name.name}"
-  acl           = "private"
-  force_destroy = true
-
-  lifecycle_rule {
-    enabled = true
-
-    expiration {
-      days                         = "${var.s3-expiration-days}"
-      expired_object_delete_marker = true
-    }
-
-    abort_incomplete_multipart_upload_days = "${var.s3-abort-incomplete-multipart-upload-days}"
-  }
-
-  tags {
-    Name          = "${module.cache_bucket_name.name}"
-    Service       = "${var.service-name}"
-    ProductDomain = "${var.product-domain}"
-    Description   = "${var.service-name} ami baking S3 bucket"
-    Environment   = "special"
-    ManagedBy     = "Terraform"
-  }
+resource "aws_iam_role_policy" "codepipeline_codebuild" {
+  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-CodeBuild"
+  role   = "${module.codepipeline_role.role_name}"
+  policy = "${data.aws_iam_policy_document.codepipeline_codebuild.json}"
 }
 
 data "aws_vpc" "selected" {
-  id = "${var.vpc-id}"
+  id = "${var.vpc_id}"
 }
 
 module "sg_name" {
   source = "git@github.com:traveloka/terraform-aws-resource-naming.git?ref=v0.6.0"
 
-  name_prefix   = "${var.service-name}-template"
+  name_prefix   = "${var.service_name}-template"
   resource_type = "security_group"
 }
 
 resource "aws_security_group" "template" {
   name   = "${module.sg_name.name}"
-  vpc_id = "${var.vpc-id}"
+  vpc_id = "${var.vpc_id}"
 
   tags {
-    Name          = "${var.service-name}-template"
-    Service       = "${var.service-name}"
-    ProductDomain = "${var.product-domain}"
+    Name          = "${var.service_name}-template"
+    Service       = "${var.service_name}"
+    ProductDomain = "${var.product_domain}"
     Environment   = "special"
-    Description   = "Security group for ${var.service-name} ami baking instances"
+    Description   = "Security group for ${var.service_name} ami baking instances"
     ManagedBy     = "Terraform"
   }
 }
 
-resource "aws_security_group_rule" "template-ssh" {
+resource "aws_security_group_rule" "template_ssh" {
   type              = "ingress"
   from_port         = "22"
   to_port           = "22"
@@ -212,7 +173,7 @@ resource "aws_security_group_rule" "template-ssh" {
   cidr_blocks       = ["${data.aws_ip_ranges.current_region_codebuild.cidr_blocks}"]
 }
 
-resource "aws_security_group_rule" "template-http-all" {
+resource "aws_security_group_rule" "template_http_all" {
   type              = "egress"
   from_port         = "80"
   to_port           = "80"
@@ -221,7 +182,7 @@ resource "aws_security_group_rule" "template-http-all" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "template-https-all" {
+resource "aws_security_group_rule" "template_https_all" {
   type              = "egress"
   from_port         = "443"
   to_port           = "443"
@@ -230,7 +191,7 @@ resource "aws_security_group_rule" "template-https-all" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "template-all-vpc" {
+resource "aws_security_group_rule" "template_all_vpc" {
   type              = "egress"
   from_port         = "0"
   to_port           = "0"
@@ -239,16 +200,16 @@ resource "aws_security_group_rule" "template-all-vpc" {
   cidr_blocks       = ["${data.aws_vpc.selected.cidr_block}"]
 }
 
-module "template" {
-  source = "github.com/salvianreynaldi/terraform-aws-iam-role.git//modules/instance?ref=fix%2Fremove-region-prompt"
+module "template_instance_role" {
+  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/instance?ref=v0.4.3"
 
-  service_name = "${var.service-name}"
+  service_name = "${var.service_name}"
   cluster_role = "template"
 }
 
-resource "aws_iam_role_policy" "template-instance-additional" {
-  name   = "TemplateInstance-${data.aws_region.current.name}-${var.service-name}-${count.index}"
-  role   = "${module.template.role_name}"
-  policy = "${var.additional-template-instance-permission[count.index]}"
-  count  = "${length(var.additional-template-instance-permission)}"
+resource "aws_iam_role_policy" "template_instance_additional" {
+  name   = "TemplateInstance-${data.aws_region.current.name}-${var.service_name}-${count.index}"
+  role   = "${module.template_instance_role.role_name}"
+  policy = "${var.additional_template_instance_permission[count.index]}"
+  count  = "${length(var.additional_template_instance_permission)}"
 }

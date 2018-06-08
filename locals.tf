@@ -1,3 +1,3 @@
 locals {
-  bake-pipeline-name = "${var.service-name}-bake-ami"
+  bake_pipeline_name = "${var.service_name}-bake-ami"
 }

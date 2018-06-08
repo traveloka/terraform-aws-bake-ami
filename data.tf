@@ -11,18 +11,18 @@ data "template_file" "buildspec" {
   template = "${var.buildspec}"
 
   vars {
-    ami-manifest-bucket       = "${var.ami-manifest-bucket}"
-    ami-baking-pipeline-name  = "${local.bake-pipeline-name}"
-    template-instance-profile = "${module.template.instance_profile_name}"
+    ami-manifest-bucket       = "${var.ami_manifest_bucket}"
+    ami-baking-pipeline-name  = "${local.bake_pipeline_name}"
+    template-instance-profile = "${module.template_instance_role.instance_profile_name}"
     template-instance-sg      = "${aws_security_group.template.id}"
-    base-ami-owners           = "${join(",", var.base-ami-owners)}"
-    subnet-id                 = "${var.subnet-id}"
-    vpc-id                    = "${var.vpc-id}"
+    base-ami-owners           = "${join(",", var.base_ami_owners)}"
+    subnet-id                 = "${var.subnet_id}"
+    vpc-id                    = "${var.vpc_id}"
     region                    = "${data.aws_region.current.name}"
   }
 }
 
-data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
+data "aws_iam_policy_document" "codebuild_s3" {
   statement {
     effect = "Allow"
 
@@ -31,8 +31,8 @@ data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.cache.id}/*",
-      "arn:aws:s3:::${var.ami-manifest-bucket}/*",
+      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
+      "arn:aws:s3:::${var.ami_manifest_bucket}/*",
     ]
   }
 
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.cache.id}/*",
+      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
     ]
   }
 
@@ -57,13 +57,13 @@ data "aws_iam_policy_document" "codebuild-bake-ami-s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline-binary-bucket}",
-      "arn:aws:s3:::${var.pipeline-binary-bucket}/${var.pipeline-binary-key}",
+      "arn:aws:s3:::${var.pipeline_binary_bucket}",
+      "arn:aws:s3:::${var.pipeline_binary_bucket}/${var.pipeline_binary_key}",
     ]
   }
 }
 
-data "aws_iam_policy_document" "codebuild-bake-ami-cloudwatch" {
+data "aws_iam_policy_document" "codebuild_cloudwatch" {
   statement {
     effect = "Allow"
 
@@ -74,13 +74,13 @@ data "aws_iam_policy_document" "codebuild-bake-ami-cloudwatch" {
     ]
 
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.bake-pipeline-name}",
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.bake-pipeline-name}:*",
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.bake_pipeline_name}",
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.bake_pipeline_name}:*",
     ]
   }
 }
 
-data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
+data "aws_iam_policy_document" "codebuild_packer" {
   statement {
     effect = "Allow"
 
@@ -97,7 +97,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:placement-group/*",
       "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:security-group/${aws_security_group.template.id}",
       "arn:aws:ec2:${data.aws_region.current.name}::snapshot/*",
-      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:subnet/${var.subnet-id}",
+      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:subnet/${var.subnet_id}",
     ]
   }
 
@@ -126,7 +126,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/ProductDomain"
 
       values = [
-        "${var.product-domain}",
+        "${var.product_domain}",
       ]
     }
   }
@@ -145,7 +145,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
     condition = {
       test     = "StringEquals"
       variable = "ec2:Owner"
-      values   = "${var.base-ami-owners}"
+      values   = "${var.base_ami_owners}"
     }
   }
 
@@ -165,9 +165,9 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:InstanceProfile"
 
       values = [
-        "${module.template.instance_profile_name}",
-        "${module.template.instance_profile_arn}",
-        "${module.template.instance_profile_unique_id}",
+        "${module.template_instance_role.instance_profile_name}",
+        "${module.template_instance_role.instance_profile_arn}",
+        "${module.template_instance_role.instance_profile_unique_id}",
       ]
     }
 
@@ -185,7 +185,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.service-name}",
+        "${var.service_name}",
       ]
     }
 
@@ -194,7 +194,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/ProductDomain"
 
       values = [
-        "${var.product-domain}",
+        "${var.product_domain}",
       ]
     }
 
@@ -225,9 +225,9 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:InstanceProfile"
 
       values = [
-        "${module.template.instance_profile_name}",
-        "${module.template.instance_profile_arn}",
-        "${module.template.instance_profile_unique_id}",
+        "${module.template_instance_role.instance_profile_name}",
+        "${module.template_instance_role.instance_profile_arn}",
+        "${module.template_instance_role.instance_profile_unique_id}",
       ]
     }
 
@@ -245,7 +245,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:ResourceTag/Service"
 
       values = [
-        "${var.service-name}",
+        "${var.service_name}",
       ]
     }
 
@@ -254,7 +254,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "ec2:ResourceTag/ProductDomain"
 
       values = [
-        "${var.product-domain}",
+        "${var.product_domain}",
       ]
     }
 
@@ -276,7 +276,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
     ]
 
     resources = [
-      "${module.template.role_arn}",
+      "${module.template_instance_role.role_arn}",
     ]
   }
 
@@ -375,7 +375,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.service-name}",
+        "${var.service_name}",
       ]
     }
 
@@ -393,7 +393,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
       variable = "aws:RequestTag/ProductDomain"
 
       values = [
-        "${var.product-domain}",
+        "${var.product_domain}",
       ]
     }
 
@@ -428,7 +428,7 @@ data "aws_iam_policy_document" "codebuild-bake-ami-packer" {
   }
 }
 
-data "aws_iam_policy_document" "codepipeline-bake-ami-s3" {
+data "aws_iam_policy_document" "codepipeline_s3" {
   statement {
     effect = "Allow"
 
@@ -437,7 +437,7 @@ data "aws_iam_policy_document" "codepipeline-bake-ami-s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.cache.id}/*",
+      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
     ]
   }
 
@@ -452,15 +452,15 @@ data "aws_iam_policy_document" "codepipeline-bake-ami-s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline-playbook-bucket}",
-      "arn:aws:s3:::${var.pipeline-binary-bucket}",
-      "arn:aws:s3:::${var.pipeline-playbook-bucket}/${var.pipeline-playbook-key}",
-      "arn:aws:s3:::${var.pipeline-binary-bucket}/${var.pipeline-binary-key}",
+      "arn:aws:s3:::${var.pipeline_playbook_bucket}",
+      "arn:aws:s3:::${var.pipeline_binary_bucket}",
+      "arn:aws:s3:::${var.pipeline_playbook_bucket}/${var.pipeline_playbook_key}",
+      "arn:aws:s3:::${var.pipeline_binary_bucket}/${var.pipeline_binary_key}",
     ]
   }
 }
 
-data "aws_iam_policy_document" "codepipeline-bake-ami-codebuild" {
+data "aws_iam_policy_document" "codepipeline_codebuild" {
   statement {
     effect = "Allow"
 
@@ -469,6 +469,6 @@ data "aws_iam_policy_document" "codepipeline-bake-ami-codebuild" {
       "codebuild:StartBuild",
     ]
 
-    resources = ["arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:project/${aws_codebuild_project.bake-ami.name}"]
+    resources = ["arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:project/${aws_codebuild_project.bake_ami.name}"]
   }
 }
