@@ -1,14 +1,14 @@
-output "bake-ami-playbook-input" {
-  value       = "s3://${var.pipeline-playbook-bucket}/${var.pipeline-playbook-key}"
+output "bake_ami_playbook_input" {
+  value       = "s3://${var.playbook_bucket}/${var.playbook_key}"
   description = "where to store the zip file for the ami baking pipeline"
 }
 
-output "bake-ami-binary-input" {
-  value       = "s3://${var.pipeline-binary-bucket}/${var.pipeline-binary-key}"
+output "bake_ami_binary_input" {
+  value       = "s3://${var.binary_bucket}/${var.binary_key}"
   description = "where to store the zip file for the ami baking pipeline"
 }
 
-output "bake-buildspec" {
+output "bake_buildspec" {
   value       = "${data.template_file.buildspec.rendered}"
-  description = "the bake-ami codebuild project's buildspec"
+  description = "the codebuild project's buildspec"
 }
