@@ -1,10 +1,10 @@
 output "bake_ami_playbook_input" {
-  value       = "s3://${var.pipeline_playbook_bucket}/${var.pipeline_playbook_key}"
+  value       = "s3://${var.playbook_bucket}/${var.playbook_key}"
   description = "where to store the zip file for the ami baking pipeline"
 }
 
 output "bake_ami_binary_input" {
-  value       = "s3://${var.pipeline_binary_bucket}/${var.pipeline_binary_key}"
+  value       = "s3://${var.binary_bucket}/${var.binary_key}"
   description = "where to store the zip file for the ami baking pipeline"
 }
 

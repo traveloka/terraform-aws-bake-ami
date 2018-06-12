@@ -61,16 +61,16 @@ variable "additional_template_instance_permission" {
 }
 
 variable "poll_source_changes" {
-  default     = "true"
+  default     = "false"
   description = "Set whether the created pipeline should poll the source for change and triggers the pipeline"
 }
 
-variable "pipeline_playbook_bucket" {
+variable "playbook_bucket" {
   type        = "string"
   description = "the S3 bucket that contains the AMI baking playbook"
 }
 
-variable "pipeline_binary_bucket" {
+variable "binary_bucket" {
   type        = "string"
   description = "the S3 bucket that contains the application binary"
 }
@@ -80,12 +80,12 @@ variable "ami_manifest_bucket" {
   description = "the S3 bucket to which CodeBuild will store the resulting AMI's artifacts"
 }
 
-variable "pipeline_playbook_key" {
+variable "playbook_key" {
   default     = "playbook.zip"
   description = "the S3 key of the AMI baking playbook that will be used as the pipeline input. CodeBuild doesn't seem to support tar files"
 }
 
-variable "pipeline_binary_key" {
+variable "binary_key" {
   default     = "application.tgz"
   description = "the S3 key of the Application binary that will be used as the pipeline input"
 }

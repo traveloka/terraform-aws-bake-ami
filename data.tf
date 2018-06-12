@@ -57,8 +57,8 @@ data "aws_iam_policy_document" "codebuild_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_binary_bucket}",
-      "arn:aws:s3:::${var.pipeline_binary_bucket}/${var.pipeline_binary_key}",
+      "arn:aws:s3:::${var.binary_bucket}",
+      "arn:aws:s3:::${var.binary_bucket}/${var.binary_key}",
     ]
   }
 }
@@ -452,10 +452,8 @@ data "aws_iam_policy_document" "codepipeline_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_playbook_bucket}",
-      "arn:aws:s3:::${var.pipeline_binary_bucket}",
-      "arn:aws:s3:::${var.pipeline_playbook_bucket}/${var.pipeline_playbook_key}",
-      "arn:aws:s3:::${var.pipeline_binary_bucket}/${var.pipeline_binary_key}",
+      "arn:aws:s3:::${var.playbook_bucket}",
+      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}",
     ]
   }
 }
