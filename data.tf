@@ -170,11 +170,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     }
 
     condition = {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.product_domain}*",
+        "${var.service_name}",
       ]
     }
 
@@ -230,11 +230,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     }
 
     condition = {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "ec2:ResourceTag/Service"
 
       values = [
-        "${var.product_domain}*",
+        "${var.service_name}",
       ]
     }
 
@@ -360,11 +360,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     ]
 
     condition = {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.product_domain}*",
+        "${var.service_name}",
       ]
     }
 
