@@ -16,7 +16,7 @@ resource "aws_codebuild_project" "bake_ami" {
   source {
     type      = "S3"
     buildspec = "${data.template_file.buildspec.rendered}"
-    location  = "${var.playbook_bucket}/${var.playbook_key}"
+    location  = "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
   }
 
   tags {
