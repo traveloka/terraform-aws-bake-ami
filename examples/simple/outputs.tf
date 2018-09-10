@@ -1,6 +1,6 @@
 output "build_project_name" {
   value       = "${module.beisvc2_bake_ami.build_project_name}"
-  description = "where to store the playbook zip file for the ami baking build"
+  description = "the codebuild project name"
 }
 
 output "bake_ami_playbook_input" {
