@@ -31,20 +31,7 @@ data "aws_iam_policy_document" "codebuild_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
       "arn:aws:s3:::${var.ami_manifest_bucket}/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
     ]
   }
 
@@ -57,6 +44,8 @@ data "aws_iam_policy_document" "codebuild_s3" {
     ]
 
     resources = [
+      "arn:aws:s3:::${var.playbook_bucket}",
+      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}",
       "arn:aws:s3:::${var.binary_bucket}",
       "arn:aws:s3:::${var.binary_bucket}/${var.binary_key}",
     ]
@@ -181,11 +170,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     }
 
     condition = {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.service_name}",
+        "${var.product_domain}*",
       ]
     }
 
@@ -241,11 +230,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     }
 
     condition = {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "ec2:ResourceTag/Service"
 
       values = [
-        "${var.service_name}",
+        "${var.product_domain}*",
       ]
     }
 
@@ -371,11 +360,11 @@ data "aws_iam_policy_document" "codebuild_packer" {
     ]
 
     condition = {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "aws:RequestTag/Service"
 
       values = [
-        "${var.service_name}",
+        "${var.product_domain}*",
       ]
     }
 
@@ -425,48 +414,5 @@ data "aws_iam_policy_document" "codebuild_packer" {
     resources = [
       "*",
     ]
-  }
-}
-
-data "aws_iam_policy_document" "codepipeline_s3" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:PutObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:GetBucket",
-      "s3:GetBucketVersioning",
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.playbook_bucket}",
-      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}",
-    ]
-  }
-}
-
-data "aws_iam_policy_document" "codepipeline_codebuild" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "codebuild:BatchGetBuilds",
-      "codebuild:StartBuild",
-    ]
-
-    resources = ["arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:project/${aws_codebuild_project.bake_ami.name}"]
   }
 }

@@ -1,11 +1,11 @@
 output "bake_ami_playbook_input" {
   value       = "s3://${var.playbook_bucket}/${var.playbook_key}"
-  description = "where to store the zip file for the ami baking pipeline"
+  description = "where to store the zip file for the ami baking build"
 }
 
 output "bake_ami_binary_input" {
   value       = "s3://${var.binary_bucket}/${var.binary_key}"
-  description = "where to store the zip file for the ami baking pipeline"
+  description = "where to store the zip file for the ami baking build"
 }
 
 output "bake_buildspec" {
