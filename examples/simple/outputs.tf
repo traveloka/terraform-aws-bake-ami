@@ -1,19 +1,19 @@
 output "build_project_name" {
-  value       = "${aws_codebuild_project.bake_ami.name}"
+  value       = "${module.beisvc2_bake_ami.build_project_name}"
   description = "the codebuild project name"
 }
 
 output "bake_ami_playbook_input" {
-  value       = "s3://${var.playbook_bucket}/${var.playbook_key}"
+  value       = "${module.beisvc2_bake_ami.bake_ami_playbook_input}"
   description = "where to store the playbook zip file for the ami baking build"
 }
 
 output "bake_ami_binary_input" {
-  value       = "s3://${var.binary_bucket}/${var.binary_key}"
+  value       = "${module.beisvc2_bake_ami.bake_ami_binary_input}"
   description = "where to store the application tar file for the ami baking build"
 }
 
 output "bake_buildspec" {
-  value       = "${data.template_file.buildspec.rendered}"
+  value       = "${module.beisvc2_bake_ami.bake_buildspec}"
   description = "the codebuild project's buildspec"
 }

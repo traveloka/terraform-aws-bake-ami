@@ -1,6 +1,6 @@
 # traveloka-terraform-aws-bake-ami
 
-A Terraform module which creates a AWS CodePipeline pipeline, a CodeBuild build project, along with their respective IAM roles and least-privilege policies.
+A Terraform module which creates a CodeBuild build project, along with their respective IAM roles and least-privilege policies.
 This modules should be used to provision the AMI baking pipeline that can be used for various purpose, like application deployment to aws ec2 auto scaling groups
 
 
@@ -10,27 +10,26 @@ See examples/simple
 
 ## Conventions
 
- - The created pipeline name will be `${var.service-name}-bake-ami`
- - The codepipeline IAM role name will be `CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service-name}`
- - The created build project name will be `${var.service-name}-bake-ami`
- - The codebuild IAM role name will be `CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service-name}`
+ - The created pipeline name will be `${var.service_name}-bake-ami`
+ - The created build project name will be `${var.service_name}-bake-ami`
+ - The codebuild IAM role name will be `ServiceRoleForCodebuild_*`
  - The build project will be tagged:
-    - "Service" = "${var.service-name}"
-    - "ProductDomain" = "${var.product-domain}"
+    - "Service" = "${var.service_name}"
+    - "ProductDomain" = "${var.product_domain}"
     - "Environment" = "special"
  - The build project will have permission to Run Instances:
     - having these tags on creation:
       - "Name" = "Packer Builder"
-      - "Service" = "${var.service-name}"
-      - "ProductDomain" = "${var.product-domain}"
+      - "Service" = "${var.service_name}"
+      - "ProductDomain" = "${var.product_domain}"
       - "Environment" = "special"
     - with a volume having these tags on creation:
-      - "ProductDomain" = "${var.product-domain}"
+      - "ProductDomain" = "${var.product_domain}"
       - "Environment" = "special"
   - The build project will have permission to creates images and snapshots having these tags:
-      - "Service" = "${var.service-name}"
+      - "Service" = "${var.service_name}"
       - "ServiceVersion" = any
-      - "ProductDomain" = "${var.product-domain}"
+      - "ProductDomain" = "${var.product_domain}"
       - "BaseAmiId" = any
 
 ## Authors

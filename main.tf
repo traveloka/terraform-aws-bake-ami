@@ -4,9 +4,7 @@ resource "aws_codebuild_project" "bake_ami" {
   service_role = "${module.codebuild_role.role_arn}"
 
   artifacts {
-    type           = "CODEPIPELINE"
-    namespace_type = "BUILD_ID"
-    packaging      = "ZIP"
+    type = "NO_ARTIFACTS"
   }
 
   environment {
@@ -16,8 +14,9 @@ resource "aws_codebuild_project" "bake_ami" {
   }
 
   source {
-    type      = "CODEPIPELINE"
+    type      = "S3"
     buildspec = "${data.template_file.buildspec.rendered}"
+    location  = "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
   }
 
   tags {
@@ -27,56 +26,6 @@ resource "aws_codebuild_project" "bake_ami" {
     "ProductDomain" = "${var.product_domain}"
     "Environment"   = "special"
     "ManagedBy"     = "Terraform"
-  }
-}
-
-resource "aws_codepipeline" "bake_ami" {
-  name     = "${local.bake_pipeline_name}"
-  role_arn = "${module.codepipeline_role.role_arn}"
-
-  artifact_store {
-    location = "${var.pipeline_artifact_bucket}"
-    type     = "S3"
-  }
-
-  stage {
-    name = "Source"
-
-    action {
-      name             = "Playbook"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "S3"
-      version          = "1"
-      output_artifacts = ["Playbook"]
-
-      configuration {
-        S3Bucket             = "${var.playbook_bucket}"
-        S3ObjectKey          = "${var.playbook_key}"
-        PollForSourceChanges = "${var.poll_source_changes}"
-      }
-
-      run_order = 1
-    }
-  }
-
-  stage {
-    name = "Build"
-
-    action {
-      name            = "Bake"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      input_artifacts = ["Playbook"]
-      version         = "1"
-
-      configuration {
-        ProjectName = "${aws_codebuild_project.bake_ami.name}"
-      }
-
-      run_order = 1
-    }
   }
 }
 
@@ -114,29 +63,6 @@ resource "aws_iam_role_policy" "codebuild_policy_additional" {
   role   = "${module.codebuild_role.role_name}"
   policy = "${var.additional_codebuild_permission[count.index]}"
   count  = "${length(var.additional_codebuild_permission)}"
-}
-
-module "codepipeline_role" {
-  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.3"
-
-  role_identifier            = "CodePipeline Bake AMI"
-  role_description           = "Service Role for CodePipeline Bake AMI"
-  role_force_detach_policies = true
-  role_max_session_duration  = 43200
-
-  aws_service = "codepipeline.amazonaws.com"
-}
-
-resource "aws_iam_role_policy" "codepipeline_s3" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-S3"
-  role   = "${module.codepipeline_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline_s3.json}"
-}
-
-resource "aws_iam_role_policy" "codepipeline_codebuild" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-CodeBuild"
-  role   = "${module.codepipeline_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline_codebuild.json}"
 }
 
 data "aws_vpc" "selected" {
