@@ -60,11 +60,6 @@ variable "additional_template_instance_permission" {
   default     = []
 }
 
-variable "poll_source_changes" {
-  default     = "false"
-  description = "Set whether the created pipeline should poll the source for change and triggers the pipeline"
-}
-
 variable "playbook_bucket" {
   type        = "string"
   description = "the S3 bucket that contains the AMI baking playbook"
@@ -86,7 +81,6 @@ variable "playbook_key" {
 }
 
 variable "binary_key" {
-  default     = "application.tgz"
   description = "the S3 key of the Application binary that will be used as the pipeline input"
 }
 
