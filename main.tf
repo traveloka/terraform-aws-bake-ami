@@ -35,7 +35,7 @@ resource "aws_codepipeline" "bake_ami" {
   role_arn = "${module.codepipeline_role.role_arn}"
 
   artifact_store {
-    location = "${var.pipeline_artifact_bucket}"
+    location = "${var.codepipeline_artifact_bucket}"
     type     = "S3"
   }
 

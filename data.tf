@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "codebuild_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
+      "arn:aws:s3:::${var.codepipeline_artifact_bucket}/*",
       "arn:aws:s3:::${var.ami_manifest_bucket}/*",
     ]
   }
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "codebuild_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
+      "arn:aws:s3:::${var.codepipeline_artifact_bucket}/*",
     ]
   }
 
@@ -437,7 +437,7 @@ data "aws_iam_policy_document" "codepipeline_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.pipeline_artifact_bucket}/*",
+      "arn:aws:s3:::${var.codepipeline_artifact_bucket}/*",
     ]
   }
 

@@ -106,3 +106,7 @@ variable "bake_codebuild_environment_type" {
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
   default     = "LINUX_CONTAINER"
 }
+
+variable "codepipeline_artifact_bucket" {
+  description = "An S3 bucket to be used as CodePipeline's artifact bucket"
+}
