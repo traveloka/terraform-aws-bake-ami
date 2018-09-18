@@ -110,3 +110,8 @@ variable "bake_codebuild_environment_type" {
 variable "codepipeline_artifact_bucket" {
   description = "An S3 bucket to be used as CodePipeline's artifact bucket"
 }
+
+variable "poll_for_source_changes" {
+  default     = true
+  description = "Whether codepipeline should poll the S3 source for changes"
+}
