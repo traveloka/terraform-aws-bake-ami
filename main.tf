@@ -1,12 +1,17 @@
 resource "aws_codebuild_project" "bake_ami" {
   name         = "${local.bake_project_name}"
   description  = "Bake ${var.service_name} AMI"
-  service_role = "${module.codebuild_role.role_arn}"
+  service_role = "${var.codebuild_role_arn}"
 
   artifacts {
     type           = "CODEPIPELINE"
     namespace_type = "BUILD_ID"
     packaging      = "ZIP"
+  }
+
+  cache {
+    type     = "${var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"}"
+    location = "${var.codebuild_cache_bucket}/${local.bake_project_name}"
   }
 
   environment {
@@ -25,14 +30,14 @@ resource "aws_codebuild_project" "bake_ami" {
     "Description"   = "Bake ${var.service_name} AMI"
     "Service"       = "${var.service_name}"
     "ProductDomain" = "${var.product_domain}"
-    "Environment"   = "special"
+    "Environment"   = "management"
     "ManagedBy"     = "Terraform"
   }
 }
 
 resource "aws_codepipeline" "bake_ami" {
   name     = "${local.pipeline_name}"
-  role_arn = "${module.codepipeline_role.role_arn}"
+  role_arn = "${var.codepipeline_role_arn}"
 
   artifact_store {
     location = "${var.codepipeline_artifact_bucket}"
@@ -51,9 +56,8 @@ resource "aws_codepipeline" "bake_ami" {
       output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket             = "${var.playbook_bucket}"
-        S3ObjectKey          = "${var.playbook_key}"
-        PollForSourceChanges = "${var.poll_for_source_changes}"
+        S3Bucket    = "${var.playbook_bucket}"
+        S3ObjectKey = "${var.playbook_key}"
       }
 
       run_order = 1
@@ -64,12 +68,13 @@ resource "aws_codepipeline" "bake_ami" {
     name = "Build"
 
     action {
-      name            = "Bake"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      input_artifacts = ["Playbook"]
-      version         = "1"
+      name             = "Bake"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["Playbook"]
+      output_artifacts = ["AmiId"]
+      version          = "1"
 
       configuration {
         ProjectName = "${aws_codebuild_project.bake_ami.name}"
@@ -78,138 +83,67 @@ resource "aws_codepipeline" "bake_ami" {
       run_order = 1
     }
   }
-}
 
-module "codebuild_role" {
-  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.3"
+  stage {
+    name = "Deploy"
 
-  role_identifier            = "CodeBuild Bake AMI"
-  role_description           = "Service Role for CodeBuild Bake AMI"
-  role_force_detach_policies = true
-  role_max_session_duration  = 43200
+    action {
+      name            = "Share"
+      category        = "Invoke"
+      owner           = "AWS"
+      provider        = "Lambda"
+      input_artifacts = ["AmiId"]
+      version         = "1"
 
-  aws_service = "codebuild.amazonaws.com"
-}
+      configuration {
+        FunctionName = "${aws_codebuild_project.bake_ami.name}"
+      }
 
-resource "aws_iam_role_policy" "codebuild-policy-packer" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-packer"
-  role   = "${module.codebuild_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild_packer.json}"
-}
-
-resource "aws_iam_role_policy" "codebuild_policy_cloudwatch" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-cloudwatch"
-  role   = "${module.codebuild_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild_cloudwatch.json}"
-}
-
-resource "aws_iam_role_policy" "codebuild_policy_s3" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-S3"
-  role   = "${module.codebuild_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codebuild_s3.json}"
-}
-
-resource "aws_iam_role_policy" "codebuild_policy_additional" {
-  name   = "CodeBuildBakeAmi-${data.aws_region.current.name}-${var.service_name}-${count.index}"
-  role   = "${module.codebuild_role.role_name}"
-  policy = "${var.additional_codebuild_permission[count.index]}"
-  count  = "${length(var.additional_codebuild_permission)}"
-}
-
-module "codepipeline_role" {
-  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/service?ref=v0.4.3"
-
-  role_identifier            = "CodePipeline Bake AMI"
-  role_description           = "Service Role for CodePipeline Bake AMI"
-  role_force_detach_policies = true
-  role_max_session_duration  = 43200
-
-  aws_service = "codepipeline.amazonaws.com"
-}
-
-resource "aws_iam_role_policy" "codepipeline_s3" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-S3"
-  role   = "${module.codepipeline_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline_s3.json}"
-}
-
-resource "aws_iam_role_policy" "codepipeline_codebuild" {
-  name   = "CodePipelineBakeAmi-${data.aws_region.current.name}-${var.service_name}-CodeBuild"
-  role   = "${module.codepipeline_role.role_name}"
-  policy = "${data.aws_iam_policy_document.codepipeline_codebuild.json}"
-}
-
-data "aws_vpc" "selected" {
-  id = "${var.vpc_id}"
-}
-
-module "sg_name" {
-  source = "git@github.com:traveloka/terraform-aws-resource-naming.git?ref=v0.6.0"
-
-  name_prefix   = "${var.service_name}-template"
-  resource_type = "security_group"
-}
-
-resource "aws_security_group" "template" {
-  name   = "${module.sg_name.name}"
-  vpc_id = "${var.vpc_id}"
-
-  tags {
-    Name          = "${var.service_name}-template"
-    Service       = "${var.service_name}"
-    ProductDomain = "${var.product_domain}"
-    Environment   = "special"
-    Description   = "Security group for ${var.service_name} ami baking instances"
-    ManagedBy     = "Terraform"
+      run_order = 1
+    }
   }
 }
 
-resource "aws_security_group_rule" "template_ssh" {
-  type              = "ingress"
-  from_port         = "22"
-  to_port           = "22"
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.template.id}"
-  cidr_blocks       = ["${data.aws_ip_ranges.current_region_codebuild.cidr_blocks}"]
+resource "aws_cloudwatch_event_rule" "this" {
+  name        = "trigger-${aws_codepipeline.bake_ami.name}"
+  description = "Capture each s3://${var.playbook_bucket}/${var.playbook_key} upload"
+
+  event_pattern = <<PATTERN
+{
+  "source": [
+    "aws.s3"
+  ],
+  "detail-type": [
+    "AWS API Call via CloudTrail"
+  ],
+  "detail": {
+    "eventSource": [
+      "s3.amazonaws.com"
+    ],
+    "eventName": [
+      "PutObject"
+    ],
+    "resources": [
+      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
+    ]
+  }
+}
+PATTERN
 }
 
-resource "aws_security_group_rule" "template_http_all" {
-  type              = "egress"
-  from_port         = "80"
-  to_port           = "80"
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.template.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
+resource "aws_cloudwatch_event_target" "this" {
+  rule = "${aws_cloudwatch_event_rule.this.name}"
+  arn  = "${aws_codepipeline.bake_ami.arn}"
+
+  role_arn = "${var.events_role_arn}"
 }
 
-resource "aws_security_group_rule" "template_https_all" {
-  type              = "egress"
-  from_port         = "443"
-  to_port           = "443"
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.template.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "template_all_vpc" {
-  type              = "egress"
-  from_port         = "0"
-  to_port           = "0"
-  protocol          = "-1"
-  security_group_id = "${aws_security_group.template.id}"
-  cidr_blocks       = ["${data.aws_vpc.selected.cidr_block}"]
-}
-
-module "template_instance_role" {
-  source = "github.com/traveloka/terraform-aws-iam-role.git//modules/instance?ref=v0.4.3"
-
-  service_name = "${var.service_name}"
-  cluster_role = "template"
-}
-
-resource "aws_iam_role_policy" "template_instance_additional" {
-  name   = "TemplateInstance-${data.aws_region.current.name}-${var.service_name}-${count.index}"
-  role   = "${module.template_instance_role.role_name}"
-  policy = "${var.additional_template_instance_permission[count.index]}"
-  count  = "${length(var.additional_template_instance_permission)}"
+resource "aws_lambda_function" "share_ami" {
+  filename         = "${data.archive_file.share_ami_function.output_path}"
+  source_code_hash = "${data.archive_file.share_ami_function.output_base64sha256}"
+  role             = "${var.lambda_role_arn}"
+  function_name    = "${var.service_name}-share-ami"
+  description      = "share-${var.service_name}-amis"
+  runtime          = "python3.6"
+  handler          = "main.handler"
 }
