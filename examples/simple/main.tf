@@ -2,57 +2,59 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
-module "beisvc2_bake_ami" {
+module "beitest_bake_ami" {
   source = "../../"
 
-  codepipeline_artifact_bucket = "${aws_s3_bucket.codepipeline_artifact.id}"
-  service_name             = "beisvc2"
-  product_domain           = "bei"
-  playbook_bucket          = "beisvc2_artifact_bucket"
-  binary_bucket            = "beisvc2_artifact_bucket"
-  ami_manifest_bucket      = "beisvc2_ami_bucket"
+  codepipeline_artifact_bucket = "my_bucket"
+  codepipeline_role_arn        = "codepipeline_arn"
+  codebuild_cache_bucket       = "codebuild_cache_bucket"
+  codebuild_role_arn           = "codebuild_role_arn"
+  events_role_arn              = "events_role_arn"
+  lambda_function_arn          = "lambda_function_arn"
+  template_instance_profile    = "template_instance_profile"
+  template_instance_sg         = "template_instance_sg"
+
+  service_name        = "beitest"
+  product_domain      = "bei"
+  playbook_bucket     = "playbook_bucket"
+  playbook_key        = "beitest/playbook.zip"
+  ami_manifest_bucket = "playbook_bucket"
 
   base_ami_owners = [
     "123456789012",
+    "234567890123",
   ]
 
-  binary_key = "beisvc2*"
-  vpc_id     = "vpc-abcd0123"
-  subnet_id  = "subnet-4567efab"
-}
+  vpc_id    = "vpc-abcdef01"
+  subnet_id = "subnet-23456789"
 
-module "codepipeline_artifact_bucket_name" {
-  source = "github.com/traveloka/terraform-aws-resource-naming?ref=v0.7.1"
-
-  name_prefix   = "beisvc2-codepipeline-artifact-"
-  resource_type = "s3_bucket"
-}
-
-resource "aws_s3_bucket" "codepipeline_artifact" {
-  bucket        = "${module.codepipeline_artifact_bucket_name.name}"
-  acl           = "private"
-  force_destroy = true
-
-  lifecycle_rule {
-    enabled = true
-
-    expiration {
-      expired_object_delete_marker = true
-    }
-
-    noncurrent_version_expiration {
-      days = 7
-    }
-
-    abort_incomplete_multipart_upload_days = 1
-  }
-
-  tags {
-    Name          = "${module.codepipeline_artifact_bucket_name.name}"
-    Service       = "beisvc2"
-    ProductDomain = "bei"
-    Description   = "CodePipeline artifact bucket for bei services"
-    Environment   = "special"
-    ManagedBy     = "Terraform"
-  }
+  buildspec = <<EOF
+version: 0.2
+env:
+  variables:
+    USER: "ubuntu"
+    PACKER_NO_COLOR: "true"
+    APP_TEMPLATE_SG_ID: "$${template_instance_sg}"
+    APP_S3_PREFIX: "s3://$${ami_manifest_bucket}/$${ami_baking_project_name}"
+    APP_TEMPLATE_INSTANCE_PROFILE: "$${template_instance_profile}"
+    APP_TEMPLATE_INSTANCE_VPC_ID: "$${vpc_id}"
+    APP_TEMPLATE_INSTANCE_SUBNET_ID: "$${subnet_id}"
+    STACK_AMI_OWNERS: "$${base_ami_owners}"
+    STACK_AMI_NAME_FILTER: "my_base_ami/*"
+    PACKER_VARIABLES_FILE: "packer_variables.json"
+phases:
+  pre_build:
+    commands:
+      - ansible-galaxy install -r requirements.yml
+      - packer validate -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+  build:
+    commands:
+      - packer build -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+cache:
+  paths:
+    - /root/.ansible/roles/**/*
+artifacts:
+  files:
+    - packer-manifest.json
+EOF
 }
