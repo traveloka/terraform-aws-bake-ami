@@ -73,7 +73,7 @@ resource "aws_codepipeline" "bake_ami" {
       owner            = "AWS"
       provider         = "CodeBuild"
       input_artifacts  = ["Playbook"]
-      output_artifacts = ["AmiId"]
+      output_artifacts = ["PackerManifest"]
       version          = "1"
 
       configuration {
@@ -92,11 +92,11 @@ resource "aws_codepipeline" "bake_ami" {
       category        = "Invoke"
       owner           = "AWS"
       provider        = "Lambda"
-      input_artifacts = ["AmiId"]
+      input_artifacts = ["PackerManifest"]
       version         = "1"
 
       configuration {
-        FunctionName = "${aws_codebuild_project.bake_ami.name}"
+        FunctionName = "${var.lambda_function_arn}"
       }
 
       run_order = 1
@@ -136,14 +136,4 @@ resource "aws_cloudwatch_event_target" "this" {
   arn  = "${aws_codepipeline.bake_ami.arn}"
 
   role_arn = "${var.events_role_arn}"
-}
-
-resource "aws_lambda_function" "share_ami" {
-  filename         = "${data.archive_file.share_ami_function.output_path}"
-  source_code_hash = "${data.archive_file.share_ami_function.output_base64sha256}"
-  role             = "${var.lambda_role_arn}"
-  function_name    = "${var.service_name}-share-ami"
-  description      = "share-${var.service_name}-amis"
-  runtime          = "python3.6"
-  handler          = "main.handler"
 }

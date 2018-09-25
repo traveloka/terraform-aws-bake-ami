@@ -91,7 +91,7 @@ variable "events_role_arn" {
   description = "The role arn to be assumed by the codebuild project"
 }
 
-variable "lambda_role_arn" {
+variable "lambda_function_arn" {
   type        = "string"
-  description = "The role arn to be assumed by the codepipeline"
+  description = "The AMI sharing lambda function role arn"
 }

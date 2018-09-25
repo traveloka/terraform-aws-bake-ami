@@ -16,9 +16,3 @@ data "template_file" "buildspec" {
     region                    = "${data.aws_region.current.name}"
   }
 }
-
-data "archive_file" "share_ami_function" {
-  type        = "zip"
-  source_file = "${path.module}/main.py"
-  output_path = "${path.module}/.terraform/generated/function.zip"
-}
