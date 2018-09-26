@@ -86,11 +86,6 @@ variable "codepipeline_role_arn" {
   description = "The role arn to be assumed by the codepipeline"
 }
 
-variable "events_role_arn" {
-  type        = "string"
-  description = "The role arn to be assumed by the codebuild project"
-}
-
 variable "lambda_function_arn" {
   type        = "string"
   description = "The AMI sharing lambda function role arn"

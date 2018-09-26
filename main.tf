@@ -56,8 +56,9 @@ resource "aws_codepipeline" "bake_ami" {
       output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket    = "${var.playbook_bucket}"
-        S3ObjectKey = "${var.playbook_key}"
+        S3Bucket            = "${var.playbook_bucket}"
+        S3ObjectKey         = "${var.playbook_key}"
+        PollForSourceChange = "true"
       }
 
       run_order = 1
@@ -102,38 +103,4 @@ resource "aws_codepipeline" "bake_ami" {
       run_order = 1
     }
   }
-}
-
-resource "aws_cloudwatch_event_rule" "this" {
-  name        = "trigger-${aws_codepipeline.bake_ami.name}"
-  description = "Capture each s3://${var.playbook_bucket}/${var.playbook_key} upload"
-
-  event_pattern = <<PATTERN
-{
-  "source": [
-    "aws.s3"
-  ],
-  "detail-type": [
-    "AWS API Call via CloudTrail"
-  ],
-  "detail": {
-    "eventSource": [
-      "s3.amazonaws.com"
-    ],
-    "eventName": [
-      "PutObject"
-    ],
-    "resources": [
-      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
-    ]
-  }
-}
-PATTERN
-}
-
-resource "aws_cloudwatch_event_target" "this" {
-  rule = "${aws_cloudwatch_event_rule.this.name}"
-  arn  = "${aws_codepipeline.bake_ami.arn}"
-
-  role_arn = "${var.events_role_arn}"
 }
