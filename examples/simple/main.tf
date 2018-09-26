@@ -9,7 +9,7 @@ module "beitest_bake_ami" {
   codepipeline_role_arn        = "codepipeline_arn"
   codebuild_cache_bucket       = "codebuild_cache_bucket"
   codebuild_role_arn           = "codebuild_role_arn"
-  lambda_function_arn          = "lambda_function_arn"
+  lambda_function_name         = "lambda_function_name"
   template_instance_profile    = "template_instance_profile"
   template_instance_sg         = "template_instance_sg"
 

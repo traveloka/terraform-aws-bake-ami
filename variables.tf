@@ -86,7 +86,7 @@ variable "codepipeline_role_arn" {
   description = "The role arn to be assumed by the codepipeline"
 }
 
-variable "lambda_function_arn" {
+variable "lambda_function_name" {
   type        = "string"
-  description = "The AMI sharing lambda function role arn"
+  description = "The name of the AMI sharing lambda function"
 }

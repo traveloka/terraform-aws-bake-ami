@@ -97,7 +97,7 @@ resource "aws_codepipeline" "bake_ami" {
       version         = "1"
 
       configuration {
-        FunctionName = "${var.lambda_function_arn}"
+        FunctionName = "${var.lambda_function_name}"
       }
 
       run_order = 1
