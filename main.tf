@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_log_group" "beisami" {
+resource "aws_cloudwatch_log_group" "bake_ami" {
   name = "/aws/codebuild/${local.bake_project_name}"
 
   retention_in_days = "30"
