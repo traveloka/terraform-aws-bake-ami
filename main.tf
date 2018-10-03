@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
     ProductDomain = "${var.product_domain}"
     Service       = "${var.service_name}"
     Environment   = "management"
-    Description   = "LogGroup for ${local.service_name} Bake AMI"
+    Description   = "LogGroup for ${var.service_name} Bake AMI"
     ManagedBy     = "Terraform"
   }
 }
