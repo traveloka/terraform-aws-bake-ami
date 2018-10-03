@@ -1,3 +1,18 @@
+resource "aws_cloudwatch_log_group" "bake_ami" {
+  name = "/aws/codebuild/${local.bake_project_name}"
+
+  retention_in_days = "30"
+
+  tags {
+    Name          = "/aws/codebuild/${local.bake_project_name}"
+    ProductDomain = "${var.product_domain}"
+    Service       = "${var.service_name}"
+    Environment   = "management"
+    Description   = "LogGroup for ${local.service_name} Bake AMI"
+    ManagedBy     = "Terraform"
+  }
+}
+
 resource "aws_codebuild_project" "bake_ami" {
   name         = "${local.bake_project_name}"
   description  = "Bake ${var.service_name} AMI"
@@ -61,7 +76,7 @@ resource "aws_codepipeline" "bake_ami" {
         PollForSourceChanges = "true"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 
@@ -81,7 +96,7 @@ resource "aws_codepipeline" "bake_ami" {
         ProjectName = "${aws_codebuild_project.bake_ami.name}"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 
@@ -100,7 +115,7 @@ resource "aws_codepipeline" "bake_ami" {
         FunctionName = "${var.lambda_function_name}"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 }
