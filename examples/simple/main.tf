@@ -38,6 +38,7 @@ env:
     APP_TEMPLATE_INSTANCE_PROFILE: "$${template_instance_profile}"
     APP_TEMPLATE_INSTANCE_VPC_ID: "$${vpc_id}"
     APP_TEMPLATE_INSTANCE_SUBNET_ID: "$${subnet_id}"
+    AMI_NAME_PREFIX: "my_ami_prefix/"
     STACK_AMI_OWNERS: "$${base_ami_owners}"
     STACK_AMI_NAME_FILTER: "my_base_ami/*"
     PACKER_VARIABLES_FILE: "packer_variables.json"
