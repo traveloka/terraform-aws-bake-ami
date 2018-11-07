@@ -73,7 +73,7 @@ resource "aws_codepipeline" "bake_ami" {
       configuration {
         S3Bucket             = "${var.playbook_bucket}"
         S3ObjectKey          = "${var.playbook_key}"
-        PollForSourceChanges = "true"
+        PollForSourceChanges = "${var.codepipeline_poll_for_source_changes}"
       }
 
       run_order = "1"
