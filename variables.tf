@@ -98,3 +98,9 @@ variable "lambda_function_name" {
   type        = "string"
   description = "The name of the AMI sharing lambda function"
 }
+
+variable "codepipeline_poll_for_source_changes" {
+  type        = "string"
+  description = "Whether or not the pipeline should poll for source changes"
+  default     = "true"
+}
