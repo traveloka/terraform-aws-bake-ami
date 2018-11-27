@@ -102,5 +102,5 @@ variable "lambda_function_name" {
 variable "codepipeline_poll_for_source_changes" {
   type        = "string"
   description = "Whether or not the pipeline should poll for source changes"
-  default     = "true"
+  default     = "false"
 }
