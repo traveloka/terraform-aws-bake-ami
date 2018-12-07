@@ -104,3 +104,9 @@ variable "codepipeline_poll_for_source_changes" {
   description = "Whether or not the pipeline should poll for source changes"
   default     = "true"
 }
+
+variable "slack_channel" {
+  type        = "string"
+  default     = ""
+  description = "The name of the slack channel to which baked AMI IDs will be sent"
+}
