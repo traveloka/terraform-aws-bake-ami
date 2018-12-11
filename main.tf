@@ -112,7 +112,8 @@ resource "aws_codepipeline" "bake_ami" {
       version         = "1"
 
       configuration {
-        FunctionName = "${var.lambda_function_name}"
+        FunctionName   = "${var.lambda_function_name}"
+        UserParameters = "${format("{\"slack_channel\":\"%s\"}", var.slack_channel)}"
       }
 
       run_order = "1"

@@ -14,6 +14,7 @@ module "beitest_bake_ami" {
   template_instance_sg         = "template_instance_sg"
 
   service_name        = "beitest"
+  slack_channel       = "my_notification_channel"
   product_domain      = "bei"
   playbook_bucket     = "playbook_bucket"
   playbook_key        = "beitest/playbook.zip"
