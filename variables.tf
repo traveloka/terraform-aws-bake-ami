@@ -14,6 +14,7 @@ variable "base_ami_owners" {
 }
 
 variable "buildspec" {
+  type        = "string"
   description = "the buildspec for the CodeBuild project"
 }
 
@@ -28,38 +29,45 @@ variable "ami_manifest_bucket" {
 }
 
 variable "playbook_key" {
-  default     = "playbook.zip"
+  type        = "string"
   description = "the S3 key of the AMI baking playbook that will be used as the pipeline input. CodeBuild doesn't seem to support tar files"
 }
 
 variable "vpc_id" {
+  type        = "string"
   description = "the id of the VPC where AMI baking instances will reside on"
 }
 
 variable "subnet_id" {
+  type        = "string"
   description = "the id of the subnet where AMI baking instances will reside on"
 }
 
 variable "bake_codebuild_compute_type" {
+  type        = "string"
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html"
   default     = "BUILD_GENERAL1_SMALL"
 }
 
 variable "bake_codebuild_image" {
+  type        = "string"
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
-  default     = "traveloka/codebuild-ami-baking:v1.0.0"
+  default     = "traveloka/codebuild-ami-baking:latest"
 }
 
 variable "bake_codebuild_environment_type" {
+  type        = "string"
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
   default     = "LINUX_CONTAINER"
 }
 
 variable "codepipeline_artifact_bucket" {
+  type        = "string"
   description = "An S3 bucket to be used as CodePipeline's artifact bucket"
 }
 
 variable "codebuild_cache_bucket" {
+  type        = "string"
   description = "An S3 bucket to be used as CodeBuild's cache bucket"
 
   # default to no cache
@@ -86,12 +94,18 @@ variable "codepipeline_role_arn" {
   description = "The role arn to be assumed by the codepipeline"
 }
 
+variable "lambda_function_name" {
+  type        = "string"
+  description = "The name of the AMI sharing lambda function"
+}
+
 variable "events_role_arn" {
   type        = "string"
   description = "The role arn to be assumed by the codebuild project"
 }
 
-variable "lambda_function_arn" {
+variable "slack_channel" {
   type        = "string"
-  description = "The AMI sharing lambda function role arn"
+  default     = ""
+  description = "The name of the slack channel to which baked AMI IDs will be sent"
 }

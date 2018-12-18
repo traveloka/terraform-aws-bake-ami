@@ -1,3 +1,18 @@
+resource "aws_cloudwatch_log_group" "bake_ami" {
+  name = "/aws/codebuild/${local.bake_project_name}"
+
+  retention_in_days = "30"
+
+  tags {
+    Name          = "/aws/codebuild/${local.bake_project_name}"
+    ProductDomain = "${var.product_domain}"
+    Service       = "${var.service_name}"
+    Environment   = "management"
+    Description   = "LogGroup for ${var.service_name} Bake AMI"
+    ManagedBy     = "Terraform"
+  }
+}
+
 resource "aws_codebuild_project" "bake_ami" {
   name         = "${local.bake_project_name}"
   description  = "Bake ${var.service_name} AMI"
@@ -60,7 +75,7 @@ resource "aws_codepipeline" "bake_ami" {
         S3ObjectKey = "${var.playbook_key}"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 
@@ -80,7 +95,7 @@ resource "aws_codepipeline" "bake_ami" {
         ProjectName = "${aws_codebuild_project.bake_ami.name}"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 
@@ -96,10 +111,11 @@ resource "aws_codepipeline" "bake_ami" {
       version         = "1"
 
       configuration {
-        FunctionName = "${var.lambda_function_arn}"
+        FunctionName   = "${var.lambda_function_name}"
+        UserParameters = "${format("{\"slack_channel\":\"%s\"}", var.slack_channel)}"
       }
 
-      run_order = 1
+      run_order = "1"
     }
   }
 }
