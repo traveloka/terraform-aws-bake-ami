@@ -99,10 +99,9 @@ variable "lambda_function_name" {
   description = "The name of the AMI sharing lambda function"
 }
 
-variable "codepipeline_poll_for_source_changes" {
+variable "events_role_arn" {
   type        = "string"
-  description = "Whether or not the pipeline should poll for source changes"
-  default     = "true"
+  description = "The role arn to be assumed by the cloudwatch events rule"
 }
 
 variable "slack_channel" {
