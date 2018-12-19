@@ -101,7 +101,7 @@ variable "lambda_function_name" {
 
 variable "events_role_arn" {
   type        = "string"
-  description = "The role arn to be assumed by the codebuild project"
+  description = "The role arn to be assumed by the cloudwatch events rule"
 }
 
 variable "slack_channel" {
