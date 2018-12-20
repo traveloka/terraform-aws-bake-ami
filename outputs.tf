@@ -1,5 +1,5 @@
 output "build_project_name" {
-  value       = "${aws_codebuild_project.bake_ami.name}"
+  value       = "${local.bake_project_name}"
   description = "the codebuild project name"
 }
 
