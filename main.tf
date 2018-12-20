@@ -121,7 +121,7 @@ resource "aws_codepipeline" "bake_ami" {
 }
 
 resource "aws_cloudwatch_event_rule" "this" {
-  name        = "trigger-${aws_codepipeline.bake_ami.name}"
+  name        = "${aws_codepipeline.bake_ami.name}-trigger"
   description = "Capture each s3://${var.playbook_bucket}/${var.playbook_key} upload"
 
   event_pattern = <<PATTERN
