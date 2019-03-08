@@ -138,11 +138,14 @@ resource "aws_cloudwatch_event_rule" "this" {
       "s3.amazonaws.com"
     ],
     "eventName": [
-      "PutObject"
+      "PutObject",
+      "CompleteMultipartUpload"
     ],
-    "resources": [
-      "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
-    ]
+    "resources": {
+      "ARN": [
+        "arn:aws:s3:::${var.playbook_bucket}/${var.playbook_key}"
+      ]
+    }
   }
 }
 PATTERN
