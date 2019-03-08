@@ -71,8 +71,9 @@ resource "aws_codepipeline" "bake_ami" {
       output_artifacts = ["Playbook"]
 
       configuration {
-        S3Bucket    = "${var.playbook_bucket}"
-        S3ObjectKey = "${var.playbook_key}"
+        S3Bucket             = "${var.playbook_bucket}"
+        PollForSourceChanges = "${var.codepipeline_poll_for_source_changes}"
+        S3ObjectKey          = "${var.playbook_key}"
       }
 
       run_order = "1"
