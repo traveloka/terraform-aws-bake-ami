@@ -9,7 +9,7 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
     Service       = "${var.service_name}"
     Environment   = "management"
     Description   = "LogGroup for ${var.service_name} Bake AMI"
-    ManagedBy     = "Terraform"
+    ManagedBy     = "terraform"
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_codebuild_project" "bake_ami" {
     "Service"       = "${var.service_name}"
     "ProductDomain" = "${var.product_domain}"
     "Environment"   = "management"
-    "ManagedBy"     = "Terraform"
+    "ManagedBy"     = "terraform"
   }
 }
 
@@ -118,6 +118,14 @@ resource "aws_codepipeline" "bake_ami" {
 
       run_order = "1"
     }
+  }
+  tags {
+    "Name"          = "${local.pipeline_name}"
+    "Description"   = "${var.service_name} AMI Baking Pipeline"
+    "Service"       = "${var.service_name}"
+    "ProductDomain" = "${var.product_domain}"
+    "Environment"   = "management"
+    "ManagedBy"     = "terraform"
   }
 }
 
