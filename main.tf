@@ -108,7 +108,7 @@ resource "aws_codepipeline" "bake_ami" {
       category        = "Invoke"
       owner           = "AWS"
       provider        = "Lambda"
-      input_artifacts = ["PackerManifest"]
+      input_artifacts = ["PackerManifest", "Playbook"]
       version         = "1"
 
       configuration {
