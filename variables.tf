@@ -115,3 +115,9 @@ variable "codepipeline_poll_for_source_changes" {
   description = "Whether or not the pipeline should poll for source changes"
   default     = "false"
 }
+
+variable "additional_tags" {
+  type        = "map"
+  description = "Additional tags to be added to codebuild and codepipeline"
+  default     = {}
+}
