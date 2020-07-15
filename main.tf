@@ -40,7 +40,7 @@ resource "aws_codebuild_project" "bake_ami" {
     buildspec = "${data.template_file.buildspec.rendered}"
   }
 
-  tags "${merge(var.additional_tags, map(
+  tags "${merge(var.additional_codebuild_tags, map(
     "Name"          , "${local.bake_project_name}",
     "Description"   , "Bake ${var.service_name} AMI",
     "Service"       , "${var.service_name}",
@@ -120,7 +120,7 @@ resource "aws_codepipeline" "bake_ami" {
       run_order = "1"
     }
   }
-  tags "${merge(var.additional_tags, map(
+  tags "${merge(var.additional_codepipeline_tags, map(
     "Name"          , "${local.pipeline_name}",
     "Description"   , "${var.service_name} AMI Baking Pipeline",
     "Service"       , "${var.service_name}",
