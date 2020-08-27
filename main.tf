@@ -3,10 +3,10 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
 
   retention_in_days = "30"
 
-  tags {
+  tags = {
     Name          = "/aws/codebuild/${local.bake_project_name}"
-    ProductDomain = "${var.product_domain}"
-    Service       = "${var.service_name}"
+    ProductDomain = var.product_domain
+    Service       = var.service_name
     Environment   = "management"
     Description   = "LogGroup for ${var.service_name} Bake AMI"
     ManagedBy     = "terraform"
@@ -14,9 +14,9 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
 }
 
 resource "aws_codebuild_project" "bake_ami" {
-  name         = "${local.bake_project_name}"
+  name         = local.bake_project_name
   description  = "Bake ${var.service_name} AMI"
-  service_role = "${var.codebuild_role_arn}"
+  service_role = var.codebuild_role_arn
 
   artifacts {
     type           = "CODEPIPELINE"
@@ -25,38 +25,37 @@ resource "aws_codebuild_project" "bake_ami" {
   }
 
   cache {
-    type     = "${var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"}"
+    type     = var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"
     location = "${var.codebuild_cache_bucket}/${local.bake_project_name}"
   }
 
   environment {
-    compute_type = "${var.bake_codebuild_compute_type}"
-    image        = "${var.bake_codebuild_image}"
-    type         = "${var.bake_codebuild_environment_type}"
+    compute_type = var.bake_codebuild_compute_type
+    image        = var.bake_codebuild_image
+    type         = var.bake_codebuild_environment_type
   }
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "${data.template_file.buildspec.rendered}"
+    buildspec = data.template_file.buildspec.rendered
   }
 
-  tags "${merge(var.additional_codebuild_tags, map(
-    "Name"          , "${local.bake_project_name}",
+  tags = merge(var.additional_codebuild_tags, map(
+    "Name"          , local.bake_project_name,
     "Description"   , "Bake ${var.service_name} AMI",
-    "Service"       , "${var.service_name}",
-    "ProductDomain" , "${var.product_domain}",
+    "Service"       , var.service_name,
+    "ProductDomain" , var.product_domain,
     "Environment"   , "management",
     "ManagedBy"     , "terraform",
     ))
-  }"
 }
 
 resource "aws_codepipeline" "bake_ami" {
-  name     = "${local.pipeline_name}"
-  role_arn = "${var.codepipeline_role_arn}"
+  name     = local.pipeline_name
+  role_arn = var.codepipeline_role_arn
 
   artifact_store {
-    location = "${var.codepipeline_artifact_bucket}"
+    location = var.codepipeline_artifact_bucket
     type     = "S3"
   }
 
@@ -71,10 +70,10 @@ resource "aws_codepipeline" "bake_ami" {
       version          = "1"
       output_artifacts = ["Playbook"]
 
-      configuration {
-        S3Bucket             = "${var.playbook_bucket}"
-        PollForSourceChanges = "${var.codepipeline_poll_for_source_changes}"
-        S3ObjectKey          = "${var.playbook_key}"
+      configuration = {
+        S3Bucket             = var.playbook_bucket
+        PollForSourceChanges = var.codepipeline_poll_for_source_changes
+        S3ObjectKey          = var.playbook_key
       }
 
       run_order = "1"
@@ -93,8 +92,8 @@ resource "aws_codepipeline" "bake_ami" {
       output_artifacts = ["PackerManifest"]
       version          = "1"
 
-      configuration {
-        ProjectName = "${local.bake_project_name}"
+      configuration = {
+        ProjectName = local.bake_project_name
       }
 
       run_order = "1"
@@ -112,15 +111,16 @@ resource "aws_codepipeline" "bake_ami" {
       input_artifacts = ["PackerManifest", "Playbook"]
       version         = "1"
 
-      configuration {
-        FunctionName   = "${var.lambda_function_name}"
-        UserParameters = "${format("{\"slack_channel\":\"%s\"}", var.slack_channel)}"
+      configuration = {
+        FunctionName   = var.lambda_function_name
+        UserParameters = format("{\"slack_channel\":\"%s\"}", var.slack_channel)
       }
 
       run_order = "1"
     }
   }
-  tags "${merge(var.additional_codepipeline_tags, map(
+  
+  tags = merge(var.additional_codepipeline_tags, map(
     "Name"          , "${local.pipeline_name}",
     "Description"   , "${var.service_name} AMI Baking Pipeline",
     "Service"       , "${var.service_name}",
@@ -128,7 +128,6 @@ resource "aws_codepipeline" "bake_ami" {
     "Environment"   , "management",
     "ManagedBy"     , "terraform"
     ))
-  }"
 }
 
 resource "aws_cloudwatch_event_rule" "this" {
@@ -162,8 +161,8 @@ PATTERN
 }
 
 resource "aws_cloudwatch_event_target" "this" {
-  rule = "${aws_cloudwatch_event_rule.this.name}"
-  arn  = "${aws_codepipeline.bake_ami.arn}"
+  rule = aws_cloudwatch_event_rule.this.name
+  arn  = aws_codepipeline.bake_ami.arn
 
-  role_arn = "${var.events_role_arn}"
+  role_arn = var.events_role_arn
 }

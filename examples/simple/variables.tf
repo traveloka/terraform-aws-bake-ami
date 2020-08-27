@@ -5,3 +5,4 @@ variable "vpc_id" {
 variable "subnet_id" {
   description = "the id of the subnet where AMI baking instances will reside on"
 }
+

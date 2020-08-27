@@ -22,12 +22,14 @@ module "beitest_bake_ami" {
   ami_manifest_bucket = "playbook_bucket"
 
   base_ami_owners = [
-    "123456789012",
-    "234567890123",
+    "460124681500",
   ]
 
-  vpc_id    = "vpc-abcdef01"
-  subnet_id = "subnet-23456789"
+  #vpc_id    = "vpc-abcdef01"
+  vpc_id = "vpc-012b395e72282f945"
+
+  #subnet_id = "subnet-23456789"
+  subnet_id = "subnet-0f9d35b17a4763e25"
 
   buildspec = <<EOF
 version: 0.2
@@ -48,10 +50,10 @@ phases:
   pre_build:
     commands:
       - ansible-galaxy install -r requirements.yml
-      - packer validate -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+      - packer validate -var-file=$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
   build:
     commands:
-      - packer build -var-file=$$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
+      - packer build -var-file=$$${PACKER_VARIABLES_FILE} /root/aws-ebs-traveloka-ansible.json
 cache:
   paths:
     - /root/.ansible/roles/**/*
@@ -59,4 +61,6 @@ artifacts:
   files:
     - packer-manifest.json
 EOF
+
 }
+
