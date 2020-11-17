@@ -55,6 +55,12 @@ variable "bake_codebuild_image" {
   default     = "traveloka/codebuild-ami-baking:latest"
 }
 
+variable "bake_codebuild_image_credentials" {
+  type        = "string"
+  default     = "CODEBUILD"
+  description = "Credentials to be used to pull codebuild environment image"
+}
+
 variable "bake_codebuild_environment_type" {
   type        = "string"
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
@@ -114,16 +120,4 @@ variable "codepipeline_poll_for_source_changes" {
   type        = "string"
   description = "Whether or not the pipeline should poll for source changes"
   default     = "false"
-}
-
-variable "additional_codebuild_tags" {
-  type        = "map"
-  description = "Additional tags to be added to codebuild"
-  default     = {}
-}
-
-variable "additional_codepipeline_tags" {
-  type        = "map"
-  description = "Additional tags to be added to codepipeline"
-  default     = {}
 }
