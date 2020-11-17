@@ -32,6 +32,7 @@ resource "aws_codebuild_project" "bake_ami" {
   environment {
     compute_type = "${var.bake_codebuild_compute_type}"
     image        = "${var.bake_codebuild_image}"
+    image_pull_credentials_type = "${var.bake_codebuild_image_credentials}"
     type         = "${var.bake_codebuild_environment_type}"
   }
 

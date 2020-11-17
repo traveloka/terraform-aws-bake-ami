@@ -55,6 +55,11 @@ variable "bake_codebuild_image" {
   default     = "traveloka/codebuild-ami-baking:latest"
 }
 
+variable "bake_codebuild_image_credentials" {
+  type        = "string"
+  description = "Credentials to be used to pull codebuild environment image"
+}
+
 variable "bake_codebuild_environment_type" {
   type        = "string"
   description = "https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli"
