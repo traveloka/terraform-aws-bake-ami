@@ -57,6 +57,7 @@ variable "bake_codebuild_image" {
 
 variable "bake_codebuild_image_credentials" {
   type        = "string"
+  default     = "CODEBUILD"
   description = "Credentials to be used to pull codebuild environment image"
 }
 
