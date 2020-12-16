@@ -38,7 +38,7 @@ resource "aws_codebuild_project" "bake_ami" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "${data.template_file.buildspec.rendered}"
+    buildspec = "${data.template_file.ami_baking_buildspec.rendered}"
   }
 
   tags {
@@ -46,7 +46,7 @@ resource "aws_codebuild_project" "bake_ami" {
     "Description"   = "Bake ${var.service_name} AMI"
     "Service"       = "${var.service_name}"
     "ProductDomain" = "${var.product_domain}"
-    "Environment"   = "management"
+    "Environment"   = "${var.environment}"
     "ManagedBy"     = "terraform"
   }
 }
@@ -90,7 +90,7 @@ resource "aws_codepipeline" "bake_ami" {
       owner            = "AWS"
       provider         = "CodeBuild"
       input_artifacts  = ["Playbook"]
-      output_artifacts = ["PackerManifest"]
+      output_artifacts = ["PackerManifest", "BuildManifest"]
       version          = "1"
 
       configuration {
@@ -99,10 +99,6 @@ resource "aws_codepipeline" "bake_ami" {
 
       run_order = "1"
     }
-  }
-
-  stage {
-    name = "Deploy"
 
     action {
       name            = "Share"
@@ -117,15 +113,16 @@ resource "aws_codepipeline" "bake_ami" {
         UserParameters = "${format("{\"slack_channel\":\"%s\"}", var.slack_channel)}"
       }
 
-      run_order = "1"
+      run_order = "2"
     }
   }
+
   tags {
     "Name"          = "${local.pipeline_name}"
     "Description"   = "${var.service_name} AMI Baking Pipeline"
     "Service"       = "${var.service_name}"
     "ProductDomain" = "${var.product_domain}"
-    "Environment"   = "management"
+    "Environment"   = "${var.environment}"
     "ManagedBy"     = "terraform"
   }
 }

@@ -9,6 +9,6 @@ output "bake_ami_playbook_input" {
 }
 
 output "bake_buildspec" {
-  value       = "${data.template_file.buildspec.rendered}"
+  value       = "${data.template_file.ami_baking_buildspec.rendered}"
   description = "the codebuild project's buildspec"
 }
