@@ -28,7 +28,7 @@ phases:
     commands:
       - IMAGE_KEY=$(jq -r ".builds[0].artifact_id" packer-manifest.json | sed -e "s#:#/#g")
       - jq --arg image_key "$IMAGE_KEY" '.[0].builds[0] as $pm | .[1] | .deployment += {"packerManifest":$pm} | .image = $image_key' -s packer-manifest.json gradle_manifest.json > build_manifest.json  || touch build_manifest.json
-      - aws s3 cp build_manifest.json s3://<engineering-manifest-bucket>/$IMAGE_KEY/build_manifest.json --sse AES256
+      - aws s3 cp build_manifest.json s3://$${ami_baking_artifact_bucket}/$IMAGE_KEY/build_manifest.json --sse AES256
 artifacts:
   secondary-artifacts:
     PackerManifest:
