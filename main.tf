@@ -14,17 +14,16 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
 }
 
 resource "aws_codebuild_project" "bake_ami" {
-  name         = "${local.bake_project_name}"
-  description  = "Bake ${var.service_name} AMI"
-  service_role = "${var.codebuild_role_arn}"
+  name           = "${local.bake_project_name}"
+  description    = "Bake ${var.service_name} AMI"
+  service_role   = "${var.codebuild_role_arn}"
+  encryption_key = "${var.codepipeline_artifact_bucket_encryption_key_arn}"
 
   artifacts {
     type           = "CODEPIPELINE"
     namespace_type = "BUILD_ID"
     packaging      = "ZIP"
   }
-
-  encryption_key = ""
 
   cache {
     type     = "${var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"}"
