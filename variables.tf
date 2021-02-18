@@ -72,6 +72,11 @@ variable "codepipeline_artifact_bucket" {
   description = "An S3 bucket to be used as CodePipeline's artifact bucket"
 }
 
+variable "codepipeline_artifact_bucket_encryption_key_arn" {
+  type        = "string"
+  description = "The AWS Key Management Service (AWS KMS) customer master key (CMK) to be used for encrypting the build output artifacts."
+}
+
 variable "codebuild_cache_bucket" {
   type        = "string"
   description = "An S3 bucket to be used as CodeBuild's cache bucket"

@@ -24,16 +24,18 @@ resource "aws_codebuild_project" "bake_ami" {
     packaging      = "ZIP"
   }
 
+  encryption_key = ""
+
   cache {
     type     = "${var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"}"
     location = "${var.codebuild_cache_bucket}/${local.bake_project_name}"
   }
 
   environment {
-    compute_type = "${var.bake_codebuild_compute_type}"
-    image        = "${var.bake_codebuild_image}"
+    compute_type                = "${var.bake_codebuild_compute_type}"
+    image                       = "${var.bake_codebuild_image}"
     image_pull_credentials_type = "${var.bake_codebuild_image_credentials}"
-    type         = "${var.bake_codebuild_environment_type}"
+    type                        = "${var.bake_codebuild_environment_type}"
   }
 
   source {
@@ -120,6 +122,7 @@ resource "aws_codepipeline" "bake_ami" {
       run_order = "1"
     }
   }
+
   tags {
     "Name"          = "${local.pipeline_name}"
     "Description"   = "${var.service_name} AMI Baking Pipeline"
