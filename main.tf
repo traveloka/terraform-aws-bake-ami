@@ -3,7 +3,7 @@ resource "aws_cloudwatch_log_group" "bake_ami" {
 
   retention_in_days = "30"
 
-  tags {
+  tags = {
     Name          = "/aws/codebuild/${local.bake_project_name}"
     ProductDomain = "${var.product_domain}"
     Service       = "${var.service_name}"
@@ -41,13 +41,13 @@ resource "aws_codebuild_project" "bake_ami" {
     buildspec = "${data.template_file.ami_baking_buildspec.rendered}"
   }
 
-  tags {
-    "Name"          = "${local.bake_project_name}"
-    "Description"   = "Bake ${var.service_name} AMI"
-    "Service"       = "${var.service_name}"
-    "ProductDomain" = "${var.product_domain}"
-    "Environment"   = "${var.environment}"
-    "ManagedBy"     = "terraform"
+  tags = {
+    Name          = "${local.bake_project_name}"
+    Description   = "Bake ${var.service_name} AMI"
+    Service       = "${var.service_name}"
+    ProductDomain = "${var.product_domain}"
+    Environment   = "${var.environment}"
+    ManagedBy     = "terraform"
   }
 }
 
@@ -71,7 +71,7 @@ resource "aws_codepipeline" "bake_ami" {
       version          = "1"
       output_artifacts = ["Playbook"]
 
-      configuration {
+      configuration = {
         S3Bucket             = "${var.playbook_bucket}"
         PollForSourceChanges = "${var.codepipeline_poll_for_source_changes}"
         S3ObjectKey          = "${var.playbook_key}"
@@ -93,7 +93,7 @@ resource "aws_codepipeline" "bake_ami" {
       output_artifacts = ["PackerManifest", "BuildManifest"]
       version          = "1"
 
-      configuration {
+      configuration = {
         ProjectName = "${local.bake_project_name}"
       }
 
@@ -108,22 +108,22 @@ resource "aws_codepipeline" "bake_ami" {
       input_artifacts = ["PackerManifest", "Playbook"]
       version         = "1"
 
-      configuration {
+      configuration = {
         FunctionName   = "${var.lambda_function_name}"
-        UserParameters = "${format("{\"slack_channel\":\"%s\"}", var.slack_channel)}"
+        UserParameters = "${jsonencode(local.user_parameters)}"
       }
 
       run_order = "2"
     }
   }
 
-  tags {
-    "Name"          = "${local.pipeline_name}"
-    "Description"   = "${var.service_name} AMI Baking Pipeline"
-    "Service"       = "${var.service_name}"
-    "ProductDomain" = "${var.product_domain}"
-    "Environment"   = "${var.environment}"
-    "ManagedBy"     = "terraform"
+  tags = {
+    Name          = "${local.pipeline_name}"
+    Description   = "${var.service_name} AMI Baking Pipeline"
+    Service       = "${var.service_name}"
+    ProductDomain = "${var.product_domain}"
+    Environment   = "${var.environment}"
+    ManagedBy     = "terraform"
   }
 }
 

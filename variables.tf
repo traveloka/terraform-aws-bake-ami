@@ -129,7 +129,6 @@ variable "events_role_arn" {
 
 variable "slack_channel" {
   type        = "string"
-  default     = ""
   description = "The name of the slack channel to which baked AMI IDs will be sent"
 }
 
@@ -137,4 +136,9 @@ variable "codepipeline_poll_for_source_changes" {
   type        = "string"
   description = "Whether or not the pipeline should poll for source changes"
   default     = "false"
+}
+
+variable "target_accounts" {
+  type        = "list"
+  description = "The list of AWS accounts to which AMIs will be shared"
 }
