@@ -141,4 +141,5 @@ variable "codepipeline_poll_for_source_changes" {
 variable "target_accounts" {
   type        = "list"
   description = "The list of AWS accounts to which AMIs will be shared"
+  default     = []
 }
