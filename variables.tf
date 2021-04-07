@@ -124,5 +124,5 @@ variable "codepipeline_poll_for_source_changes" {
 
 variable "codepipeline_s3_upload_cloudwatch_trigger" {
   description = "Create a s3 upload pipeline cloudwatch trigger or not"
-  default     = true
+  default     = "true"
 }
