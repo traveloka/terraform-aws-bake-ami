@@ -29,16 +29,6 @@ variable "app_ami_prefix" {
   description = "The created app AMI will be named with this prefix"
 }
 
-variable "playbook_bucket" {
-  type        = "string"
-  description = "the S3 bucket that contains the AMI baking playbook"
-}
-
-variable "playbook_key" {
-  type        = "string"
-  description = "the S3 key of the AMI baking playbook that will be used as the pipeline input. CodeBuild doesn't seem to support tar files"
-}
-
 variable "vpc_id" {
   type        = "string"
   description = "the id of the VPC where AMI baking instances will reside on"
@@ -78,11 +68,6 @@ variable "bake_codebuild_environment_type" {
   default     = "LINUX_CONTAINER"
 }
 
-variable "codepipeline_artifact_bucket" {
-  type        = "string"
-  description = "An S3 bucket to be used as CodePipeline's artifact bucket"
-}
-
 variable "codebuild_cache_bucket" {
   type        = "string"
   description = "An S3 bucket to be used as CodeBuild's cache bucket"
@@ -104,36 +89,4 @@ variable "template_instance_sg" {
 variable "codebuild_role_arn" {
   type        = "string"
   description = "The role arn to be assumed by the codebuild project"
-}
-
-variable "codepipeline_role_arn" {
-  type        = "string"
-  description = "The role arn to be assumed by the codepipeline"
-}
-
-variable "lambda_function_name" {
-  type        = "string"
-  description = "The name of the AMI sharing lambda function"
-}
-
-variable "events_role_arn" {
-  type        = "string"
-  description = "The role arn to be assumed by the cloudwatch events rule"
-}
-
-variable "slack_channel" {
-  type        = "string"
-  description = "The name of the slack channel to which baked AMI IDs will be sent"
-}
-
-variable "codepipeline_poll_for_source_changes" {
-  type        = "string"
-  description = "Whether or not the pipeline should poll for source changes"
-  default     = "false"
-}
-
-variable "target_accounts" {
-  type        = "list"
-  description = "The list of AWS accounts to which AMIs will be shared"
-  default     = []
 }

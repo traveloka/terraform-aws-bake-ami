@@ -1,54 +1,17 @@
-resource "aws_cloudwatch_log_group" "bake_ami" {
-  name = "/aws/codebuild/${local.bake_project_name}"
+module "bake_ami" {
+  source = "modules/codebuild"
 
-  retention_in_days = "30"
-
-  tags = {
-    Name          = "/aws/codebuild/${local.bake_project_name}"
-    ProductDomain = "${var.product_domain}"
-    Service       = "${var.service_name}"
-    Environment   = "management"
-    Description   = "LogGroup for ${var.service_name} Bake AMI"
-    ManagedBy     = "terraform"
-  }
-}
-
-resource "aws_codebuild_project" "bake_ami" {
-  name         = "${local.bake_project_name}"
-  description  = "Bake ${var.service_name} AMI"
-  service_role = "${var.codebuild_role_arn}"
-
-  artifacts {
-    type           = "CODEPIPELINE"
-    namespace_type = "BUILD_ID"
-    packaging      = "ZIP"
-  }
-
-  cache {
-    type     = "${var.codebuild_cache_bucket == "" ? "NO_CACHE" : "S3"}"
-    location = "${var.codebuild_cache_bucket}/${local.bake_project_name}"
-  }
-
-  environment {
-    compute_type = "${var.bake_codebuild_compute_type}"
-    image        = "${var.bake_codebuild_image}"
-    image_pull_credentials_type = "${var.bake_codebuild_image_credentials}"
-    type         = "${var.bake_codebuild_environment_type}"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "${data.template_file.ami_baking_buildspec.rendered}"
-  }
-
-  tags = {
-    Name          = "${local.bake_project_name}"
-    Description   = "Bake ${var.service_name} AMI"
-    Service       = "${var.service_name}"
-    ProductDomain = "${var.product_domain}"
-    Environment   = "${var.environment}"
-    ManagedBy     = "terraform"
-  }
+  app_ami_prefix              = "${var.app_ami_prefix}"
+  base_ami_owners             = "${var.base_ami_owners}"
+  base_ami_prefix             = "${var.base_ami_prefix}"
+  codebuild_role_arn          = "${var.codebuild_role_arn}"
+  engineering_manifest_bucket = "${var.engineering_manifest_bucket}"
+  product_domain              = "${var.product_domain}"
+  service_name                = "${var.service_name}"
+  subnet_id                   = "${var.subnet_id}"
+  template_instance_profile   = "${var.template_instance_profile}"
+  template_instance_sg        = "${var.template_instance_sg}"
+  vpc_id                      = "${var.vpc_id}"
 }
 
 resource "aws_codepipeline" "bake_ami" {
@@ -94,7 +57,7 @@ resource "aws_codepipeline" "bake_ami" {
       version          = "1"
 
       configuration = {
-        ProjectName = "${local.bake_project_name}"
+        ProjectName = "${module.bake_ami.build_project_name}"
       }
 
       run_order = "1"

@@ -1,5 +1,5 @@
 output "build_project_name" {
-  value       = "${local.bake_project_name}"
+  value       = "${module.bake_ami.build_project_name}"
   description = "the codebuild project name"
 }
 
@@ -9,6 +9,6 @@ output "bake_ami_playbook_input" {
 }
 
 output "bake_buildspec" {
-  value       = "${data.template_file.ami_baking_buildspec.rendered}"
+  value       = "${module.bake_ami.bake_buildspec}"
   description = "the codebuild project's buildspec"
 }
